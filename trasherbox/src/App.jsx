@@ -6,6 +6,7 @@ import Panel from "./pages/Panel";
 import Productos from "./pages/Productos";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
+import Carrito from "./pages/Carrito"; // ajusta según tu estructura
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/productos" element={<Productos />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/carrito" element={<Carrito />} />
       </Routes>
       <Footer />
     </Router>
