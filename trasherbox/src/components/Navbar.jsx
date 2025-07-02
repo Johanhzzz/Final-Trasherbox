@@ -49,7 +49,7 @@ function Navbar() {
       key: "3",
       icon: <ShoppingCartOutlined />,
       label: "Carrito",
-      onClick: () => alert("Carrito próximamente"),
+      onClick: () => navigate("/Carrito"),
     },
     {
       key: "4",
@@ -117,7 +117,7 @@ function Navbar() {
         <Badge count={0} showZero>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginLeft: "20px", cursor: "pointer" }}
-            onClick={() => alert("Carrito próximamente")}
+            onClick={() => navigate("/Carrito")}
           />
         </Badge>
       </div>
