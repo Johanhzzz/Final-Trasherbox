@@ -9,6 +9,11 @@ import {
   LogoutOutlined,
   LoginOutlined,
   UserOutlined,
+  DashboardOutlined,
+  BarChartOutlined,
+  FileTextOutlined,
+  MailOutlined,
+  AppstoreAddOutlined,
 } from "@ant-design/icons";
 import { Button, Drawer, Menu, Badge, Dropdown, Space } from "antd";
 import "./Navbar.css";
@@ -32,19 +37,66 @@ function Navbar() {
     }
   };
 
-  const menuItems = user?.role === 'admin'
-    ? [
-        { key: "1", icon: <DashboardOutlined />, label: "Dashboard", onClick: () => navigate("/admin") },
-        { key: "2", icon: <UserOutlined />, label: "Usuarios", onClick: () => navigate("/admin/users") },
-        // otros ítems admin
-      ]
-    : [
-        { key: "1", icon: <HomeOutlined />, label: "Inicio", onClick: () => navigate("/panel") },
-        { key: "2", icon: <ShoppingOutlined />, label: "Productos", onClick: () => navigate("/productos") },
-        { key: "3", icon: <ShoppingCartOutlined />, label: "Carrito", onClick: () => navigate("/carrito") },
-        // otros ítems usuario
-      ];
-    
+  const menuItems =
+    user?.rol === "admin"
+      ? [
+          {
+            key: "dashboard",
+            icon: <DashboardOutlined />,
+            label: "Dashboard",
+            onClick: () => navigate("/admin/dashboard"),
+          },
+          {
+            key: "usuarios",
+            icon: <UserOutlined />,
+            label: "Usuarios",
+            onClick: () => navigate("/admin/users"),
+          },
+          {
+            key: "pedidos",
+            icon: <FileTextOutlined />,
+            label: "Pedidos",
+            onClick: () => navigate("/admin/orders"),
+          },
+          {
+            key: "productos",
+            icon: <AppstoreAddOutlined />,
+            label: "Productos",
+            onClick: () => navigate("/admin/products"),
+          },
+          {
+            key: "contacto",
+            icon: <MailOutlined />,
+            label: "Solicitudes de contacto",
+            onClick: () => navigate("/admin/contact"),
+          },
+          {
+            key: "graficos",
+            icon: <BarChartOutlined />,
+            label: "Gráficos",
+            onClick: () => navigate("/admin/dashboard-grafico"),
+          },
+        ]
+      : [
+          {
+            key: "panel",
+            icon: <HomeOutlined />,
+            label: "Inicio",
+            onClick: () => navigate("/panel"),
+          },
+          {
+            key: "productos",
+            icon: <ShoppingOutlined />,
+            label: "Productos",
+            onClick: () => navigate("/productos"),
+          },
+          {
+            key: "carrito",
+            icon: <ShoppingCartOutlined />,
+            label: "Carrito",
+            onClick: () => navigate("/carrito"),
+          },
+        ];
 
   const userMenu = {
     items: [
@@ -66,7 +118,6 @@ function Navbar() {
 
   return (
     <header className="navbar">
-      {/* Menú Hamburguesa */}
       <Button
         type="text"
         icon={open ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -74,12 +125,10 @@ function Navbar() {
         className="menu-toggle"
       />
 
-      {/* Logo */}
       <h1 className="logo" onClick={() => navigate("/")}>
         TrasherBox
       </h1>
 
-      {/* Buscador */}
       <form className="search-bar" onSubmit={handleSearch}>
         <input
           type="text"
@@ -90,26 +139,25 @@ function Navbar() {
         <button type="submit" className="search-icon">🔍</button>
       </form>
 
-      {/* Usuario y Carrito */}
       <div className="navbar-actions">
-        <Dropdown menu={userMenu} trigger={['click']}>
+        <Dropdown menu={userMenu} trigger={["click"]}>
           <Space className="user-info">
-            <UserOutlined style={{ fontSize: '20px' }} />
-            <span>
-              {user ? `Hola, ${user.email}` : "Mi cuenta"}
-            </span>
+            <UserOutlined style={{ fontSize: "20px" }} />
+            <span>{user ? `Hola, ${user.email}` : "Mi cuenta"}</span>
           </Space>
         </Dropdown>
 
-        <Badge count={0} showZero>
-          <ShoppingCartOutlined
-            style={{ fontSize: "24px", marginLeft: "20px", cursor: "pointer" }}
-            onClick={() => alert("Carrito próximamente")}
-          />
-        </Badge>
+        {/* Solo clientes ven el carrito */}
+        {user?.rol !== "admin" && (
+          <Badge count={0} showZero>
+            <ShoppingCartOutlined
+              style={{ fontSize: "24px", marginLeft: "20px", cursor: "pointer" }}
+              onClick={() => alert("Carrito próximamente")}
+            />
+          </Badge>
+        )}
       </div>
 
-      {/* Menú Lateral */}
       <Drawer
         title="Menú"
         placement="left"
