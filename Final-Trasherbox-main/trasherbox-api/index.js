@@ -7,7 +7,6 @@ const bcrypt = require("bcrypt");
 const app = express();
 const PORT = 3001;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -20,15 +19,14 @@ const db = new sqlite3.Database("./trasherbox.db", (err) => {
   }
 });
 
-// Middleware: verificar si es admin
+// ✅ Middleware actualizado para usar adminEmail
 function verifyAdmin(req, res, next) {
-  const email = req.body.email || req.query.email;
-
+  const email = req.body.adminEmail || req.query.adminEmail;
+  if (!email) return res.status(400).json({ error: "Falta adminEmail" });
 
   db.get("SELECT rol FROM usuario WHERE email = ?", [email], (err, row) => {
     if (err || !row) return res.status(403).json({ error: "Acceso denegado" });
     if (row.rol !== "admin") return res.status(403).json({ error: "Solo administradores" });
-
     next();
   });
 }
@@ -36,14 +34,12 @@ function verifyAdmin(req, res, next) {
 // Registro de usuario
 app.post("/api/register", async (req, res) => {
   const { email, password, usuario, telefono } = req.body;
-
   if (!email || !password || !usuario || !telefono) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-
     db.run(
       `INSERT INTO usuario (email, password_hash, usuario, telefono) VALUES (?, ?, ?, ?)`,
       [email, hashedPassword, usuario, telefono],
@@ -60,14 +56,11 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// Login de usuario
+// Login
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
-
   db.get(`SELECT * FROM usuario WHERE email = ?`, [email], async (err, row) => {
-    if (err || !row) {
-      return res.status(401).json({ error: "Credenciales incorrectas" });
-    }
+    if (err || !row) return res.status(401).json({ error: "Credenciales incorrectas" });
 
     const valid = await bcrypt.compare(password, row.password_hash);
     if (!valid) return res.status(401).json({ error: "Credenciales incorrectas" });
@@ -84,15 +77,14 @@ app.post("/api/login", (req, res) => {
   });
 });
 
-// Ruta protegida de ejemplo
+// Ruta protegida de prueba
 app.post("/api/admin/secure", verifyAdmin, (req, res) => {
   res.json({ message: "Ruta protegida para administradores" });
 });
 
-// KPIs para dashboard de admin
+// Dashboard summary
 app.get("/api/admin/dashboard-summary", (req, res) => {
   const summary = {};
-
   db.get("SELECT COUNT(*) AS totalUsuarios FROM usuario", (err, usuariosRow) => {
     if (err) return res.status(500).json({ error: "Error al contar usuarios" });
     summary.usuarios = usuariosRow.totalUsuarios;
@@ -115,8 +107,9 @@ app.get("/api/admin/dashboard-summary", (req, res) => {
     });
   });
 });
-// Obtener todos los usuarios
-app.post("/api/admin/users", verifyAdmin, (req, res) => {
+
+// Listar usuarios
+app.post("/api/admin/users/list", verifyAdmin, (req, res) => {
   db.all("SELECT id, email, usuario, telefono, rol FROM usuario", (err, rows) => {
     if (err) return res.status(500).json({ error: "Error al listar usuarios" });
     res.json(rows);
@@ -128,12 +121,13 @@ app.post("/api/admin/users", verifyAdmin, async (req, res) => {
   const { email, password, usuario, telefono, rol } = req.body;
   if (!email || !password || !usuario || !telefono || !rol)
     return res.status(400).json({ error: "Faltan campos" });
+
   try {
     const hashed = await bcrypt.hash(password, 10);
     db.run(
       "INSERT INTO usuario (email, password_hash, usuario, telefono, rol) VALUES (?, ?, ?, ?, ?)",
       [email, hashed, usuario, telefono, rol],
-      function(err) {
+      function (err) {
         if (err) return res.status(400).json({ error: "Error al crear usuario" });
         res.json({ id: this.lastID });
       }
@@ -150,7 +144,7 @@ app.put("/api/admin/users/:id", verifyAdmin, (req, res) => {
   db.run(
     "UPDATE usuario SET email=?, usuario=?, telefono=?, rol=? WHERE id=?",
     [email, usuario, telefono, rol, id],
-    function(err) {
+    function (err) {
       if (err) return res.status(400).json({ error: "Error al actualizar" });
       res.json({ cambios: this.changes });
     }
@@ -160,13 +154,12 @@ app.put("/api/admin/users/:id", verifyAdmin, (req, res) => {
 // Eliminar usuario
 app.delete("/api/admin/users/:id", verifyAdmin, (req, res) => {
   const { id } = req.params;
-  db.run("DELETE FROM usuario WHERE id=?", [id], function(err) {
+  db.run("DELETE FROM usuario WHERE id=?", [id], function (err) {
     if (err) return res.status(400).json({ error: "Error al eliminar" });
     res.json({ eliminados: this.changes });
   });
 });
 
-// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 API trasherbox corriendo en http://localhost:${PORT}`);
 });

@@ -12,13 +12,13 @@ const Users = () => {
   });
   const [isEdit, setIsEdit] = useState(false);
 
-  const adminEmail = "admin3@trasherbox.cl"; // Esto se puede reemplazar luego por auth real
+  const adminEmail = "admin3@trasherbox.cl"; // Simulación de sesión
 
   const loadUsers = () => {
-    fetch("http://localhost:3001/api/admin/users", {
+    fetch("http://localhost:3001/api/admin/users/list", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: adminEmail }),
+      body: JSON.stringify({ adminEmail }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Error en la respuesta del servidor");
@@ -54,7 +54,7 @@ const Users = () => {
     fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, email: adminEmail }),
+      body: JSON.stringify({ ...payload, adminEmail }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Error al guardar");
@@ -78,7 +78,7 @@ const Users = () => {
     fetch(`http://localhost:3001/api/admin/users/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: adminEmail }),
+      body: JSON.stringify({ adminEmail }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Error al eliminar");
