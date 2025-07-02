@@ -14,7 +14,6 @@ app.use(bodyParser.json());
 const db = new sqlite3.Database("./trasherbox.db");
 
 
-// Ruta de registro de usuario
 // Registro de usuario
 app.post("/api/register", async (req, res) => {
   const { email, password, usuario, telefono } = req.body;
