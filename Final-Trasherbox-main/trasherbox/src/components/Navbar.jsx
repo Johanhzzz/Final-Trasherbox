@@ -71,13 +71,13 @@ function Navbar() {
             onClick: () => navigate("/admin/contact"),
           },
           {
-            key: "graficos",
+            key: "reportes",
             icon: <BarChartOutlined />,
-            label: "Gráficos",
-            onClick: () => navigate("/admin/dashboard-grafico"),
+            label: "Reportes",
+            onClick: () => navigate("/admin/reportes"),
           },
-        ]
-      : [
+          ]
+          : [
           {
             key: "panel",
             icon: <HomeOutlined />,
