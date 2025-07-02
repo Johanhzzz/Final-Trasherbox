@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
 
 function Dashboard() {
-  const [usuarios, setUsuarios] = useState(0);
-  const [contactos, setContactos] = useState(0);
-  const [productos, setProductos] = useState(0);
-  const [ordenes, setOrdenes] = useState(0);
+  const [kpis, setKpis] = useState({
+    usuarios: 0,
+    productos: 0,
+    ordenes: 0
+  });
 
   useEffect(() => {
-    // Simulación de carga de datos
-    setUsuarios(42);
-    setContactos(8);
-    setProductos(15);
-    setOrdenes(27);
+    fetch("http://localhost:3001/api/admin/dashboard-summary")
+      .then((res) => res.json())
+      .then((data) => {
+        setKpis({
+          usuarios: data.usuarios || 0,
+          productos: data.productos || 0,
+          ordenes: data.ordenes || 0
+        });
+      })
+      .catch((err) => console.error("Error cargando KPIs:", err));
   }, []);
 
   const kpiStyle = {
@@ -45,23 +51,18 @@ function Dashboard() {
   return (
     <div style={{ padding: "20px" }}>
       <h2>Dashboard del Admin</h2>
-
       <div style={kpiStyle.container}>
         <div style={kpiStyle.card}>
           <h4 style={kpiStyle.h4}>Usuarios registrados</h4>
-          <p style={kpiStyle.p}>{usuarios}</p>
-        </div>
-        <div style={kpiStyle.card}>
-          <h4 style={kpiStyle.h4}>Solicitudes de contacto</h4>
-          <p style={kpiStyle.p}>{contactos}</p>
+          <p style={kpiStyle.p}>{kpis.usuarios}</p>
         </div>
         <div style={kpiStyle.card}>
           <h4 style={kpiStyle.h4}>Productos publicados</h4>
-          <p style={kpiStyle.p}>{productos}</p>
+          <p style={kpiStyle.p}>{kpis.productos}</p>
         </div>
         <div style={kpiStyle.card}>
           <h4 style={kpiStyle.h4}>Órdenes realizadas</h4>
-          <p style={kpiStyle.p}>{ordenes}</p>
+          <p style={kpiStyle.p}>{kpis.ordenes}</p>
         </div>
       </div>
     </div>

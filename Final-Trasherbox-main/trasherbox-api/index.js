@@ -13,13 +13,17 @@ app.use(bodyParser.json());
 
 // Conexión a SQLite
 const db = new sqlite3.Database("./trasherbox.db", (err) => {
-  if (err) console.error("Error conectando a SQLite:", err.message);
-  else console.log("Conectado a trasherbox.db");
+  if (err) {
+    console.error("Error conectando a SQLite:", err.message);
+  } else {
+    console.log("✅ Conectado a trasherbox.db");
+  }
 });
 
-// Middleware: verificar admin
+// Middleware: verificar si es admin
 function verifyAdmin(req, res, next) {
-  const { email } = req.body;
+  const email = req.body.email || req.query.email;
+
 
   db.get("SELECT rol FROM usuario WHERE email = ?", [email], (err, row) => {
     if (err || !row) return res.status(403).json({ error: "Acceso denegado" });
@@ -29,7 +33,7 @@ function verifyAdmin(req, res, next) {
   });
 }
 
-// Registro
+// Registro de usuario
 app.post("/api/register", async (req, res) => {
   const { email, password, usuario, telefono } = req.body;
 
@@ -56,7 +60,7 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// Login
+// Login de usuario
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -80,12 +84,12 @@ app.post("/api/login", (req, res) => {
   });
 });
 
-// Ruta protegida (ejemplo)
+// Ruta protegida de ejemplo
 app.post("/api/admin/secure", verifyAdmin, (req, res) => {
   res.json({ message: "Ruta protegida para administradores" });
 });
 
-// ✅ Dashboard admin: resumen
+// KPIs para dashboard de admin
 app.get("/api/admin/dashboard-summary", (req, res) => {
   const summary = {};
 
@@ -111,8 +115,58 @@ app.get("/api/admin/dashboard-summary", (req, res) => {
     });
   });
 });
+// Obtener todos los usuarios
+app.post("/api/admin/users", verifyAdmin, (req, res) => {
+  db.all("SELECT id, email, usuario, telefono, rol FROM usuario", (err, rows) => {
+    if (err) return res.status(500).json({ error: "Error al listar usuarios" });
+    res.json(rows);
+  });
+});
+
+// Crear usuario
+app.post("/api/admin/users", verifyAdmin, async (req, res) => {
+  const { email, password, usuario, telefono, rol } = req.body;
+  if (!email || !password || !usuario || !telefono || !rol)
+    return res.status(400).json({ error: "Faltan campos" });
+  try {
+    const hashed = await bcrypt.hash(password, 10);
+    db.run(
+      "INSERT INTO usuario (email, password_hash, usuario, telefono, rol) VALUES (?, ?, ?, ?, ?)",
+      [email, hashed, usuario, telefono, rol],
+      function(err) {
+        if (err) return res.status(400).json({ error: "Error al crear usuario" });
+        res.json({ id: this.lastID });
+      }
+    );
+  } catch {
+    res.status(500).json({ error: "Error del servidor" });
+  }
+});
+
+// Actualizar usuario
+app.put("/api/admin/users/:id", verifyAdmin, (req, res) => {
+  const { id } = req.params;
+  const { email, usuario, telefono, rol } = req.body;
+  db.run(
+    "UPDATE usuario SET email=?, usuario=?, telefono=?, rol=? WHERE id=?",
+    [email, usuario, telefono, rol, id],
+    function(err) {
+      if (err) return res.status(400).json({ error: "Error al actualizar" });
+      res.json({ cambios: this.changes });
+    }
+  );
+});
+
+// Eliminar usuario
+app.delete("/api/admin/users/:id", verifyAdmin, (req, res) => {
+  const { id } = req.params;
+  db.run("DELETE FROM usuario WHERE id=?", [id], function(err) {
+    if (err) return res.status(400).json({ error: "Error al eliminar" });
+    res.json({ eliminados: this.changes });
+  });
+});
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`API trasherbox corriendo en http://localhost:${PORT}`);
+  console.log(`🚀 API trasherbox corriendo en http://localhost:${PORT}`);
 });
