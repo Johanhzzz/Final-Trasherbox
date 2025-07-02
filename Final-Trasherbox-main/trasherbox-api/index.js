@@ -7,12 +7,30 @@ const bcrypt = require("bcrypt");
 const app = express();
 const PORT = 3001;
 
+// Middleware global
 app.use(cors());
 app.use(bodyParser.json());
 
-// Conexión a la base de datos
-const db = new sqlite3.Database("./trasherbox.db");
+// Conexión a la base de datos SQLite
+const db = new sqlite3.Database("./trasherbox.db", (err) => {
+  if (err) console.error("Error conectando a SQLite:", err.message);
+  else console.log("Conectado a trasherbox.db");
+});
 
+// Middleware para proteger rutas admin
+function verifyAdmin(req, res, next) {
+  const { email } = req.body;
+
+  db.get("SELECT rol FROM usuario WHERE email = ?", [email], (err, row) => {
+    if (err || !row) return res.status(403).json({ error: "Acceso denegado" });
+
+    if (row.rol !== "admin") {
+      return res.status(403).json({ error: "Solo administradores" });
+    }
+
+    next(); // Usuario es admin
+  });
+}
 
 // Registro de usuario
 app.post("/api/register", async (req, res) => {
@@ -31,7 +49,9 @@ app.post("/api/register", async (req, res) => {
       function (err) {
         if (err) {
           console.error("Error al registrar:", err.message);
-          return res.status(400).json({ error: "Error al registrar usuario o correo ya existe" });
+          return res
+            .status(400)
+            .json({ error: "Error al registrar usuario o correo ya existe" });
         }
         res.status(200).json({ success: true, userId: this.lastID });
       }
@@ -42,9 +62,7 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-
-
-// Ruta de login
+// Login de usuario
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -69,6 +87,11 @@ app.post("/api/login", (req, res) => {
       },
     });
   });
+});
+
+// Ejemplo de ruta protegida para admin
+app.post("/api/admin/secure", verifyAdmin, (req, res) => {
+  res.json({ message: "Ruta protegida para administradores" });
 });
 
 // Iniciar servidor

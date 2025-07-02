@@ -32,32 +32,19 @@ function Navbar() {
     }
   };
 
-  const menuItems = [
-    {
-      key: "1",
-      icon: <HomeOutlined />,
-      label: "Inicio",
-      onClick: () => navigate("/panel"),
-    },
-    {
-      key: "2",
-      icon: <ShoppingOutlined />,
-      label: "Productos",
-      onClick: () => navigate("/productos"),
-    },
-    {
-      key: "3",
-      icon: <ShoppingCartOutlined />,
-      label: "Carrito",
-      onClick: () => alert("Carrito próximamente"),
-    },
-    {
-      key: "4",
-      icon: <ShoppingOutlined />,
-      label: "Cotizaciones",
-      onClick: () => alert("Cotizaciones próximamente"),
-    },
-  ];
+  const menuItems = user?.role === 'admin'
+    ? [
+        { key: "1", icon: <DashboardOutlined />, label: "Dashboard", onClick: () => navigate("/admin") },
+        { key: "2", icon: <UserOutlined />, label: "Usuarios", onClick: () => navigate("/admin/users") },
+        // otros ítems admin
+      ]
+    : [
+        { key: "1", icon: <HomeOutlined />, label: "Inicio", onClick: () => navigate("/panel") },
+        { key: "2", icon: <ShoppingOutlined />, label: "Productos", onClick: () => navigate("/productos") },
+        { key: "3", icon: <ShoppingCartOutlined />, label: "Carrito", onClick: () => navigate("/carrito") },
+        // otros ítems usuario
+      ];
+    
 
   const userMenu = {
     items: [

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 function Login() {
@@ -8,6 +9,7 @@ function Login() {
   const [usuario, setUsuario] = useState("");
   const [telefono, setTelefono] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,7 +26,12 @@ function Login() {
 
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
-        window.location.href = "/panel";
+
+        if (data.user.rol === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/panel");
+        }
       } else {
         setError(data.error || "Credenciales incorrectas");
       }
