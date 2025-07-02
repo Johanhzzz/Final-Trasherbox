@@ -28,7 +28,6 @@ const Users = () => {
       .catch((err) => console.error("Error al cargar usuarios:", err));
   };
 
-
   useEffect(() => {
     loadUsers();
   }, []);
@@ -55,7 +54,7 @@ const Users = () => {
     fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, email: adminEmail }), // nota: debe ser 'email' como lo espera verifyAdmin
+      body: JSON.stringify({ ...payload, email: adminEmail }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Error al guardar");
@@ -101,11 +100,17 @@ const Users = () => {
     setIsEdit(false);
   };
 
+  const cellStyle = {
+    border: "1px solid #ddd",
+    padding: "8px",
+    textAlign: "left",
+  };
+
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
       <h2>Gestión de Usuarios</h2>
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+      <form onSubmit={handleSubmit} style={{ marginBottom: "20px", display: "flex", flexWrap: "wrap", gap: "10px" }}>
         <input name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
         <input name="usuario" placeholder="Usuario" value={form.usuario} onChange={handleChange} required />
         <input name="telefono" placeholder="Teléfono" value={form.telefono} onChange={handleChange} required />
@@ -125,26 +130,26 @@ const Users = () => {
         {isEdit && <button onClick={resetForm} type="button">Cancelar</button>}
       </form>
 
-      <table border="1" cellPadding="6">
+      <table style={{ borderCollapse: "collapse", width: "100%", background: "#fff", boxShadow: "0 0 10px #ccc" }}>
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>Email</th>
-            <th>Usuario</th>
-            <th>Teléfono</th>
-            <th>Rol</th>
-            <th>Acciones</th>
+          <tr style={{ backgroundColor: "#f5f5f5" }}>
+            <th style={cellStyle}>ID</th>
+            <th style={cellStyle}>Email</th>
+            <th style={cellStyle}>Usuario</th>
+            <th style={cellStyle}>Teléfono</th>
+            <th style={cellStyle}>Rol</th>
+            <th style={cellStyle}>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {users.map((u) => (
             <tr key={u.id}>
-              <td>{u.id}</td>
-              <td>{u.email}</td>
-              <td>{u.usuario}</td>
-              <td>{u.telefono}</td>
-              <td>{u.rol}</td>
-              <td>
+              <td style={cellStyle}>{u.id}</td>
+              <td style={cellStyle}>{u.email}</td>
+              <td style={cellStyle}>{u.usuario}</td>
+              <td style={cellStyle}>{u.telefono}</td>
+              <td style={cellStyle}>{u.rol}</td>
+              <td style={cellStyle}>
                 <button onClick={() => handleEdit(u)}>✏️</button>
                 <button onClick={() => handleDelete(u.id)}>🗑️</button>
               </td>
