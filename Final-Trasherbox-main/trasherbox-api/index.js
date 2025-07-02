@@ -7,32 +7,29 @@ const bcrypt = require("bcrypt");
 const app = express();
 const PORT = 3001;
 
-// Middleware global
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Conexión a la base de datos SQLite
+// Conexión a SQLite
 const db = new sqlite3.Database("./trasherbox.db", (err) => {
   if (err) console.error("Error conectando a SQLite:", err.message);
   else console.log("Conectado a trasherbox.db");
 });
 
-// Middleware para proteger rutas admin
+// Middleware: verificar admin
 function verifyAdmin(req, res, next) {
   const { email } = req.body;
 
   db.get("SELECT rol FROM usuario WHERE email = ?", [email], (err, row) => {
     if (err || !row) return res.status(403).json({ error: "Acceso denegado" });
+    if (row.rol !== "admin") return res.status(403).json({ error: "Solo administradores" });
 
-    if (row.rol !== "admin") {
-      return res.status(403).json({ error: "Solo administradores" });
-    }
-
-    next(); // Usuario es admin
+    next();
   });
 }
 
-// Registro de usuario
+// Registro
 app.post("/api/register", async (req, res) => {
   const { email, password, usuario, telefono } = req.body;
 
@@ -49,20 +46,17 @@ app.post("/api/register", async (req, res) => {
       function (err) {
         if (err) {
           console.error("Error al registrar:", err.message);
-          return res
-            .status(400)
-            .json({ error: "Error al registrar usuario o correo ya existe" });
+          return res.status(400).json({ error: "Usuario ya existe o error al registrar" });
         }
         res.status(200).json({ success: true, userId: this.lastID });
       }
     );
   } catch (err) {
-    console.error("Error en el registro:", err.message);
     res.status(500).json({ error: "Error del servidor" });
   }
 });
 
-// Login de usuario
+// Login
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -72,10 +66,7 @@ app.post("/api/login", (req, res) => {
     }
 
     const valid = await bcrypt.compare(password, row.password_hash);
-
-    if (!valid) {
-      return res.status(401).json({ error: "Credenciales incorrectas" });
-    }
+    if (!valid) return res.status(401).json({ error: "Credenciales incorrectas" });
 
     res.json({
       success: true,
@@ -83,15 +74,42 @@ app.post("/api/login", (req, res) => {
         id: row.id,
         email: row.email,
         usuario: row.usuario,
-        rol: row.rol
+        rol: row.rol,
       },
     });
   });
 });
 
-// Ejemplo de ruta protegida para admin
+// Ruta protegida (ejemplo)
 app.post("/api/admin/secure", verifyAdmin, (req, res) => {
   res.json({ message: "Ruta protegida para administradores" });
+});
+
+// ✅ Dashboard admin: resumen
+app.get("/api/admin/dashboard-summary", (req, res) => {
+  const summary = {};
+
+  db.get("SELECT COUNT(*) AS totalUsuarios FROM usuario", (err, usuariosRow) => {
+    if (err) return res.status(500).json({ error: "Error al contar usuarios" });
+    summary.usuarios = usuariosRow.totalUsuarios;
+
+    db.get("SELECT COUNT(*) AS totalPedidos FROM orden", (err, pedidosRow) => {
+      if (err) return res.status(500).json({ error: "Error al contar pedidos" });
+      summary.pedidos = pedidosRow.totalPedidos;
+
+      db.get("SELECT COUNT(*) AS totalProductos FROM producto", (err, productosRow) => {
+        if (err) return res.status(500).json({ error: "Error al contar productos" });
+        summary.productos = productosRow.totalProductos;
+
+        db.get("SELECT SUM(total) AS totalVentas FROM orden", (err, ventasRow) => {
+          if (err) return res.status(500).json({ error: "Error al calcular ventas" });
+          summary.ventas = ventasRow.totalVentas || 0;
+
+          res.json(summary);
+        });
+      });
+    });
+  });
 });
 
 // Iniciar servidor
