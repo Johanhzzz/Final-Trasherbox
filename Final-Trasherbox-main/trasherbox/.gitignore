@@ -7,18 +7,54 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Build outputs
+node_modules/
+dist/
+dist-ssr/
+build/
+.cache/
+.vite/
+.temp/
 *.local
 
-# Editor directories and files
+# Database (SQLite)
+*.sqlite
+*.sqlite3
+*.db
+
+# Env variables
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VSCode
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+
+# JetBrains IDEs (WebStorm, PhpStorm)
+.idea/
+
+# Windows specific
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Coverage
+coverage/
+
+# Compiled map files
+*.map
+
+# Archives
+*.zip
+*.tar.gz
+*.tgz
+
+# Optional frontend static files
+public/static/
