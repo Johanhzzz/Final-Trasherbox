@@ -6,6 +6,7 @@ import AdminRoute from './components/AdminRoute';
 import Panel from './pages/Panel';
 import Productos from './pages/Productos';
 import Login from './pages/Login';
+import Carrito from './pages/Carrito';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="panel" element={<Panel />} />
         <Route path="productos" element={<Productos />} />
         <Route path="login" element={<Login />} />
+        <Route path="carrito" element={<Carrito />} />
       </Route>
 
       {/* Admin */}

@@ -1,0 +1,36 @@
+.carrito-container {
+  padding: 2rem;
+}
+
+.carrito-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.carrito-tabla th,
+.carrito-tabla td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.carrito-tabla img {
+  border-radius: 8px;
+}
+
+.carrito-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.boton-pagar {
+  background-color: #2e7d32;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
