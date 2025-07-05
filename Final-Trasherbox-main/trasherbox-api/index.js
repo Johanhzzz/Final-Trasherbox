@@ -160,6 +160,57 @@ app.delete("/api/admin/users/:id", verifyAdmin, (req, res) => {
   });
 });
 
+// Listar productos disponibles
+app.get("/api/productos", (req, res) => {
+  db.all("SELECT * FROM producto WHERE estado = 'disponible'", (err, rows) => {
+    if (err) return res.status(500).json({ error: "Error al obtener productos" });
+    res.json(rows);
+  });
+});
+
+// Insertar nuevo producto desde Postman
+app.post("/api/productos", (req, res) => {
+  const {
+    titulo,
+    descripcion,
+    precio,
+    precio_anterior,
+    descuento,
+    imagen,
+    estado,
+    resenas,
+    calificacion
+  } = req.body;
+
+  if (!titulo || !precio) {
+    return res.status(400).json({ error: "Faltan campos obligatorios (titulo, precio)" });
+  }
+
+  db.run(
+    `INSERT INTO producto (titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, resenas, calificacion)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      titulo,
+      descripcion,
+      precio,
+      precio_anterior,
+      descuento,
+      imagen,
+      estado || "disponible",
+      resenas || 0,
+      calificacion || 5
+    ],
+    function (err) {
+      if (err) {
+        console.error(err.message);
+        return res.status(500).json({ error: "Error al insertar producto" });
+      }
+      res.json({ id: this.lastID });
+    }
+  );
+});
+
+
 app.listen(PORT, () => {
   console.log(`🚀 API trasherbox corriendo en http://localhost:${PORT}`);
 });
