@@ -1,0 +1,53 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: white;
+  border-bottom: 1px solid #ddd;
+  position: relative;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.menu-toggle {
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.search-bar {
+  flex: 1;
+  display: flex;
+  max-width: 600px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+.search-bar button {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.user-info {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
