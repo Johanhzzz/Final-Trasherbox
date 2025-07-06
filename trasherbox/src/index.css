@@ -1,0 +1,17 @@
+/* index.css o App.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
