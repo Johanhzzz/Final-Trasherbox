@@ -24,12 +24,12 @@ const db = new sqlite3.Database("./trasherbox.db", (err) => {
 // Simulación en memoria para tokens de recuperación
 const resetTokens = {};
 
-// Configuración de Nodemailer con Gmail
+// ✅ Configuración de Nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "tucorreo@gmail.com",         // ← Cambia por tu correo
-    pass: "tu_app_password_segura",     // ← Aquí va tu App Password
+    user: "trasherbox.soporte@gmail.com",  // Tu correo
+    pass: "ovrlsgvberkbezaj",              // ← TU App Password aquí (sin espacios)
   },
 });
 
@@ -110,7 +110,7 @@ app.post("/api/recuperar-password", (req, res) => {
 
     transporter.sendMail(
       {
-        from: "tucorreo@gmail.com",
+        from: "trasherbox.soporte@gmail.com",
         to: email,
         subject: "Recuperar contraseña - TrasherBox",
         html,
@@ -120,6 +120,7 @@ app.post("/api/recuperar-password", (req, res) => {
           console.error("Error al enviar correo:", error);
           return res.status(500).json({ error: "Error al enviar correo" });
         }
+        console.log("✅ Correo enviado:", info.response);
         res.json({ message: "Correo enviado. Revisa tu bandeja de entrada." });
       }
     );
