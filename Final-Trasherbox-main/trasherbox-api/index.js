@@ -19,7 +19,7 @@ const db = new sqlite3.Database("./trasherbox.db", (err) => {
   }
 });
 
-// ✅ Middleware actualizado para usar adminEmail
+// Middleware para verificar admin
 function verifyAdmin(req, res, next) {
   const email = req.body.adminEmail || req.query.adminEmail;
   if (!email) return res.status(400).json({ error: "Falta adminEmail" });
@@ -168,7 +168,7 @@ app.get("/api/productos", (req, res) => {
   });
 });
 
-// Insertar nuevo producto desde Postman
+// Insertar nuevo producto
 app.post("/api/productos", (req, res) => {
   const {
     titulo,
@@ -210,6 +210,60 @@ app.post("/api/productos", (req, res) => {
   );
 });
 
+// Actualizar producto existente
+app.put("/api/productos/:id", (req, res) => {
+  const { id } = req.params;
+  const {
+    titulo,
+    descripcion,
+    precio,
+    precio_anterior,
+    descuento,
+    imagen,
+    estado,
+    resenas,
+    calificacion
+  } = req.body;
+
+  db.run(
+    `UPDATE producto SET
+      titulo = ?, descripcion = ?, precio = ?, precio_anterior = ?, descuento = ?,
+      imagen = ?, estado = ?, resenas = ?, calificacion = ?
+     WHERE id = ?`,
+    [
+      titulo,
+      descripcion,
+      precio,
+      precio_anterior,
+      descuento,
+      imagen,
+      estado,
+      resenas,
+      calificacion,
+      id
+    ],
+    function (err) {
+      if (err) {
+        console.error("❌ Error al actualizar producto:", err.message);
+        return res.status(500).json({ error: "Error al actualizar producto" });
+      }
+      res.json({ success: true, cambios: this.changes });
+    }
+  );
+});
+
+// Eliminar producto
+app.delete("/api/productos/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.run("DELETE FROM producto WHERE id = ?", [id], function (err) {
+    if (err) {
+      console.error("❌ Error al eliminar producto:", err.message);
+      return res.status(500).json({ error: "Error al eliminar producto" });
+    }
+    res.json({ success: true, eliminados: this.changes });
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 API trasherbox corriendo en http://localhost:${PORT}`);
