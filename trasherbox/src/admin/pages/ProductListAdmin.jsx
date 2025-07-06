@@ -92,19 +92,55 @@ const ProductListAdmin = () => {
       <h2>Gestión de Productos</h2>
 
       <form className="producto-form" onSubmit={handleSubmit}>
-        <input name="titulo" placeholder="Título" value={form.titulo} onChange={handleChange} required />
-        <input name="descripcion" placeholder="Descripción" value={form.descripcion} onChange={handleChange} />
-        <input name="precio" type="number" placeholder="Precio" value={form.precio} onChange={handleChange} required />
-        <input name="precio_anterior" type="number" placeholder="Precio anterior" value={form.precio_anterior} onChange={handleChange} />
-        <input name="descuento" type="number" placeholder="Descuento (%)" value={form.descuento} onChange={handleChange} />
-        <select name="estado" value={form.estado} onChange={handleChange}>
-          <option value="disponible">Disponible</option>
-          <option value="agotado">Agotado</option>
-        </select>
-        <input name="imagen" placeholder="URL de imagen" value={form.imagen} onChange={handleChange} />
-        <input name="resenas" type="number" placeholder="Cantidad de reseñas" value={form.resenas} onChange={handleChange} />
-        <input name="calificacion" type="number" step="0.1" placeholder="Calificación (1-5)" value={form.calificacion} onChange={handleChange} />
-        <button type="submit">{editandoId ? "Actualizar" : "Agregar producto"}</button>
+        <label>
+          Título del producto
+          <input name="titulo" placeholder="Ej: Caja Cartón Mediana" value={form.titulo} onChange={handleChange} required />
+        </label>
+
+        <label>
+          Descripción (ej: medidas de la caja)
+          <input name="descripcion" placeholder="Ej: 40x30x30 cm" value={form.descripcion} onChange={handleChange} />
+        </label>
+
+        <label>
+          Precio actual
+          <input name="precio" type="number" placeholder="Ej: 1890" value={form.precio} onChange={handleChange} required />
+        </label>
+
+        <label>
+          Precio anterior (opcional)
+          <input name="precio_anterior" type="number" placeholder="Ej: 2490" value={form.precio_anterior} onChange={handleChange} />
+        </label>
+
+        <label>
+          Descuento en %
+          <input name="descuento" type="number" placeholder="Ej: 24" value={form.descuento} onChange={handleChange} />
+        </label>
+
+        <label>
+          Estado del producto
+          <select name="estado" value={form.estado} onChange={handleChange}>
+            <option value="disponible">Disponible</option>
+            <option value="agotado">Agotado</option>
+          </select>
+        </label>
+
+        <label>
+          URL de imagen del producto
+          <input name="imagen" placeholder="https://via.placeholder.com/300x200" value={form.imagen} onChange={handleChange} />
+        </label>
+
+        <label>
+          Reseñas (cantidad)
+          <input name="resenas" type="number" placeholder="Ej: 3" value={form.resenas} onChange={handleChange} />
+        </label>
+
+        <label>
+          Calificación (de 1 a 5)
+          <input name="calificacion" type="number" step="0.1" placeholder="Ej: 4.5" value={form.calificacion} onChange={handleChange} />
+        </label>
+
+        <button type="submit">{editandoId ? "Actualizar producto" : "Agregar producto"}</button>
       </form>
 
       <hr />
