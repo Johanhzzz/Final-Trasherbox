@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "./ProductForm.css"; // Asegúrate de tener estilos aquí
+import "./ProductForm.css";
 
 const ProductListAdmin = () => {
   const [productos, setProductos] = useState([]);
@@ -21,9 +21,13 @@ const ProductListAdmin = () => {
   }, []);
 
   const fetchProductos = async () => {
-    const res = await fetch("http://localhost:3001/api/productos");
-    const data = await res.json();
-    setProductos(data);
+    try {
+      const res = await fetch("http://localhost:3001/api/productos");
+      const data = await res.json();
+      setProductos(data);
+    } catch (err) {
+      alert("Error cargando productos");
+    }
   };
 
   const handleChange = (e) => {
@@ -108,10 +112,20 @@ const ProductListAdmin = () => {
       <div className="lista-productos">
         {productos.map((p) => (
           <div key={p.id} className="producto-card-admin">
-            <img src={p.imagen} alt={p.titulo} />
+            <img
+              src={p.imagen || "/fallback.jpg"}
+              alt={p.titulo}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/fallback.jpg";
+              }}
+            />
             <h3>{p.titulo}</h3>
             <p>{p.descripcion}</p>
-            <p><b>${p.precio}</b> {p.precio_anterior && <span className="tachado">${p.precio_anterior}</span>}</p>
+            <p>
+              <b>${p.precio}</b>{" "}
+              {p.precio_anterior && <span className="tachado">${p.precio_anterior}</span>}
+            </p>
             <p>{p.descuento}% OFF</p>
             <p>{p.resenas} reseñas - {p.calificacion} ★</p>
             <p>{p.estado === "disponible" ? "🟢 Disponible" : "🔴 Agotado"}</p>
