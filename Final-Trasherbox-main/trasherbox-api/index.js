@@ -3,6 +3,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 const app = express();
 const PORT = 3001;
@@ -13,13 +15,25 @@ app.use(bodyParser.json());
 // Conexión a SQLite
 const db = new sqlite3.Database("./trasherbox.db", (err) => {
   if (err) {
-    console.error("Error conectando a SQLite:", err.message);
+    console.error("❌ Error conectando a SQLite:", err.message);
   } else {
     console.log("✅ Conectado a trasherbox.db");
   }
 });
 
-// ✅ Middleware actualizado para usar adminEmail
+// Simulación en memoria para tokens de recuperación
+const resetTokens = {};
+
+// Configuración de Nodemailer con Gmail
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "tucorreo@gmail.com",         // ← Cambia por tu correo
+    pass: "tu_app_password_segura",     // ← Aquí va tu App Password
+  },
+});
+
+// Middleware de verificación de admin
 function verifyAdmin(req, res, next) {
   const email = req.body.adminEmail || req.query.adminEmail;
   if (!email) return res.status(400).json({ error: "Falta adminEmail" });
@@ -77,140 +91,56 @@ app.post("/api/login", (req, res) => {
   });
 });
 
-// Ruta protegida de prueba
-app.post("/api/admin/secure", verifyAdmin, (req, res) => {
-  res.json({ message: "Ruta protegida para administradores" });
-});
+// Recuperar contraseña
+app.post("/api/recuperar-password", (req, res) => {
+  const { email } = req.body;
 
-// Dashboard summary
-app.get("/api/admin/dashboard-summary", (req, res) => {
-  const summary = {};
-  db.get("SELECT COUNT(*) AS totalUsuarios FROM usuario", (err, usuariosRow) => {
-    if (err) return res.status(500).json({ error: "Error al contar usuarios" });
-    summary.usuarios = usuariosRow.totalUsuarios;
+  db.get("SELECT * FROM usuario WHERE email = ?", [email], (err, row) => {
+    if (err || !row) return res.status(404).json({ error: "Correo no registrado" });
 
-    db.get("SELECT COUNT(*) AS totalPedidos FROM orden", (err, pedidosRow) => {
-      if (err) return res.status(500).json({ error: "Error al contar pedidos" });
-      summary.pedidos = pedidosRow.totalPedidos;
+    const token = crypto.randomBytes(20).toString("hex");
+    resetTokens[token] = email;
 
-      db.get("SELECT COUNT(*) AS totalProductos FROM producto", (err, productosRow) => {
-        if (err) return res.status(500).json({ error: "Error al contar productos" });
-        summary.productos = productosRow.totalProductos;
+    const resetUrl = `http://localhost:5173/resetear/${token}`;
+    const html = `
+      <p>Hola ${row.usuario},</p>
+      <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
+      <a href="${resetUrl}">${resetUrl}</a>
+    `;
 
-        db.get("SELECT SUM(total) AS totalVentas FROM orden", (err, ventasRow) => {
-          if (err) return res.status(500).json({ error: "Error al calcular ventas" });
-          summary.ventas = ventasRow.totalVentas || 0;
-
-          res.json(summary);
-        });
-      });
-    });
-  });
-});
-
-// Listar usuarios
-app.post("/api/admin/users/list", verifyAdmin, (req, res) => {
-  db.all("SELECT id, email, usuario, telefono, rol FROM usuario", (err, rows) => {
-    if (err) return res.status(500).json({ error: "Error al listar usuarios" });
-    res.json(rows);
-  });
-});
-
-// Crear usuario
-app.post("/api/admin/users", verifyAdmin, async (req, res) => {
-  const { email, password, usuario, telefono, rol } = req.body;
-  if (!email || !password || !usuario || !telefono || !rol)
-    return res.status(400).json({ error: "Faltan campos" });
-
-  try {
-    const hashed = await bcrypt.hash(password, 10);
-    db.run(
-      "INSERT INTO usuario (email, password_hash, usuario, telefono, rol) VALUES (?, ?, ?, ?, ?)",
-      [email, hashed, usuario, telefono, rol],
-      function (err) {
-        if (err) return res.status(400).json({ error: "Error al crear usuario" });
-        res.json({ id: this.lastID });
+    transporter.sendMail(
+      {
+        from: "tucorreo@gmail.com",
+        to: email,
+        subject: "Recuperar contraseña - TrasherBox",
+        html,
+      },
+      (error, info) => {
+        if (error) {
+          console.error("Error al enviar correo:", error);
+          return res.status(500).json({ error: "Error al enviar correo" });
+        }
+        res.json({ message: "Correo enviado. Revisa tu bandeja de entrada." });
       }
     );
-  } catch {
-    res.status(500).json({ error: "Error del servidor" });
-  }
-});
-
-// Actualizar usuario
-app.put("/api/admin/users/:id", verifyAdmin, (req, res) => {
-  const { id } = req.params;
-  const { email, usuario, telefono, rol } = req.body;
-  db.run(
-    "UPDATE usuario SET email=?, usuario=?, telefono=?, rol=? WHERE id=?",
-    [email, usuario, telefono, rol, id],
-    function (err) {
-      if (err) return res.status(400).json({ error: "Error al actualizar" });
-      res.json({ cambios: this.changes });
-    }
-  );
-});
-
-// Eliminar usuario
-app.delete("/api/admin/users/:id", verifyAdmin, (req, res) => {
-  const { id } = req.params;
-  db.run("DELETE FROM usuario WHERE id=?", [id], function (err) {
-    if (err) return res.status(400).json({ error: "Error al eliminar" });
-    res.json({ eliminados: this.changes });
   });
 });
 
-// Listar productos disponibles
-app.get("/api/productos", (req, res) => {
-  db.all("SELECT * FROM producto WHERE estado = 'disponible'", (err, rows) => {
-    if (err) return res.status(500).json({ error: "Error al obtener productos" });
-    res.json(rows);
+// Resetear contraseña
+app.post("/api/resetear-password", async (req, res) => {
+  const { token, nuevaPassword } = req.body;
+  const email = resetTokens[token];
+  if (!email) return res.status(400).json({ error: "Token inválido o expirado" });
+
+  const hash = await bcrypt.hash(nuevaPassword, 10);
+  db.run("UPDATE usuario SET password_hash = ? WHERE email = ?", [hash, email], (err) => {
+    if (err) return res.status(500).json({ error: "Error al actualizar contraseña" });
+    delete resetTokens[token];
+    res.json({ message: "Contraseña actualizada con éxito" });
   });
 });
 
-// Insertar nuevo producto desde Postman
-app.post("/api/productos", (req, res) => {
-  const {
-    titulo,
-    descripcion,
-    precio,
-    precio_anterior,
-    descuento,
-    imagen,
-    estado,
-    resenas,
-    calificacion
-  } = req.body;
-
-  if (!titulo || !precio) {
-    return res.status(400).json({ error: "Faltan campos obligatorios (titulo, precio)" });
-  }
-
-  db.run(
-    `INSERT INTO producto (titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, resenas, calificacion)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      titulo,
-      descripcion,
-      precio,
-      precio_anterior,
-      descuento,
-      imagen,
-      estado || "disponible",
-      resenas || 0,
-      calificacion || 5
-    ],
-    function (err) {
-      if (err) {
-        console.error(err.message);
-        return res.status(500).json({ error: "Error al insertar producto" });
-      }
-      res.json({ id: this.lastID });
-    }
-  );
-});
-
-
+// Inicia servidor
 app.listen(PORT, () => {
-  console.log(`🚀 API trasherbox corriendo en http://localhost:${PORT}`);
+  console.log(`🚀 API TrasherBox corriendo en http://localhost:${PORT}`);
 });

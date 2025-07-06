@@ -26,7 +26,6 @@ function Login() {
 
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
-
         if (data.user.rol === "admin") {
           navigate("/admin/dashboard");
         } else {
@@ -120,6 +119,15 @@ function Login() {
             {isRegister ? "Registrarse" : "Entrar"}
           </button>
         </form>
+
+        {!isRegister && (
+          <p style={{ marginTop: "10px" }}>
+            ¿Olvidaste tu contraseña?{" "}
+            <button onClick={() => navigate("/recuperar")}>
+              Recupérala aquí
+            </button>
+          </p>
+        )}
 
         <p>
           {isRegister ? (

@@ -7,6 +7,7 @@ import Panel from './pages/Panel';
 import Productos from './pages/Productos';
 import Login from './pages/Login';
 import Carrito from './pages/Carrito';
+import Recuperar from './pages/Recuperar';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="productos" element={<Productos />} />
         <Route path="login" element={<Login />} />
         <Route path="carrito" element={<Carrito />} />
+        <Route path="recuperar" element={<Recuperar />} />
       </Route>
 
       {/* Admin */}
