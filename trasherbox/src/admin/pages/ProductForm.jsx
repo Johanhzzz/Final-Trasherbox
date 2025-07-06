@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
-import "./ProductForm.css"; // Asegúrate de que este archivo exista
+import { useNavigate } from "react-router-dom";
+import "./ProductForm.css";
 
 function ProductForm() {
+  const navigate = useNavigate();
+
   const [productos, setProductos] = useState([]);
   const [form, setForm] = useState({
     titulo: "",
     descripcion: "",
     precio: "",
-    precioAnterior: "",
+    precio_anterior: "",
     descuento: "",
     estado: "disponible",
     imagen: "",
@@ -17,11 +20,11 @@ function ProductForm() {
 
   const [editandoId, setEditandoId] = useState(null);
 
-  // Cargar productos desde la API
+  // Cargar productos al montar
   useEffect(() => {
     fetch("/api/productos")
-      .then(res => res.json())
-      .then(data => setProductos(data));
+      .then((res) => res.json())
+      .then((data) => setProductos(data));
   }, []);
 
   const handleChange = (e) => {
@@ -43,7 +46,7 @@ function ProductForm() {
       titulo: "",
       descripcion: "",
       precio: "",
-      precioAnterior: "",
+      precio_anterior: "",
       descuento: "",
       estado: "disponible",
       imagen: "",
@@ -51,9 +54,14 @@ function ProductForm() {
       calificacion: 5,
     });
     setEditandoId(null);
+
+    // Refrescar productos
     const res = await fetch("/api/productos");
     const data = await res.json();
     setProductos(data);
+
+    // Navegar al listado si fue un nuevo producto
+    if (!editandoId) navigate("/admin/products");
   };
 
   const handleEditar = (producto) => {
@@ -63,7 +71,6 @@ function ProductForm() {
 
   const handleEliminar = async (id) => {
     if (!confirm("¿Seguro que deseas eliminar este producto?")) return;
-
     await fetch(`/api/productos/${id}`, { method: "DELETE" });
     const res = await fetch("/api/productos");
     const data = await res.json();
@@ -72,13 +79,13 @@ function ProductForm() {
 
   return (
     <div className="admin-productos-container">
-      <h2>Gestión de Productos</h2>
+      <h2>{editandoId ? "Editar Producto" : "Agregar Nuevo Producto"}</h2>
 
       <form className="producto-form" onSubmit={handleSubmit}>
         <input name="titulo" placeholder="Título" value={form.titulo} onChange={handleChange} required />
         <input name="descripcion" placeholder="Descripción" value={form.descripcion} onChange={handleChange} required />
         <input name="precio" type="number" placeholder="Precio" value={form.precio} onChange={handleChange} required />
-        <input name="precioAnterior" type="number" placeholder="Precio anterior" value={form.precioAnterior} onChange={handleChange} />
+        <input name="precio_anterior" type="number" placeholder="Precio anterior" value={form.precio_anterior} onChange={handleChange} />
         <input name="descuento" type="number" placeholder="Descuento (%)" value={form.descuento} onChange={handleChange} />
         <select name="estado" value={form.estado} onChange={handleChange}>
           <option value="disponible">Disponible</option>
@@ -98,7 +105,10 @@ function ProductForm() {
             <img src={p.imagen} alt={p.titulo} />
             <h3>{p.titulo}</h3>
             <p>{p.descripcion}</p>
-            <p><b>${p.precio}</b> {p.precioAnterior && <span className="tachado">${p.precioAnterior}</span>}</p>
+            <p>
+              <b>${p.precio}</b>{" "}
+              {p.precio_anterior && <span className="tachado">${p.precio_anterior}</span>}
+            </p>
             <p>{p.descuento}% OFF</p>
             <p>{p.resenas} reseñas - {p.calificacion} ★</p>
             <p>{p.estado === "disponible" ? "🟢 Disponible" : "🔴 Agotado"}</p>
