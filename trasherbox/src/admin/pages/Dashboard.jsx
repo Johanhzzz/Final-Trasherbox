@@ -13,24 +13,27 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function Dashboard() {
-  const [kpis, setKpis] = useState({ usuarios: 0, productos: 0, ordenes: 0 });
+  const [kpis, setKpis] = useState({ usuarios: 0, productos: 0, ventas: 0 });
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     // Obtener KPIs
     fetch("http://localhost:3001/api/admin/dashboard-summary")
       .then((res) => res.json())
-      .then((data) => setKpis(data))
+      .then((data) => {
+        console.log("📊 KPIs:", data);
+        setKpis(data);
+      })
       .catch((err) => {
         console.error("❌ Error cargando KPIs:", err);
-        setKpis({ usuarios: 0, productos: 0, ordenes: 0 });
+        setKpis({ usuarios: 0, productos: 0, ventas: 0 });
       });
 
     // Obtener productos por categoría
     fetch("http://localhost:3001/api/admin/productos-por-categoria")
       .then((res) => res.json())
       .then((data) => {
-        console.log("📦 Data recibida:", data);
+        console.log("📦 Data categorías recibida:", data);
         if (Array.isArray(data)) {
           setCategorias(data);
         } else {
@@ -87,8 +90,8 @@ function Dashboard() {
           <p>{kpis.productos}</p>
         </div>
         <div style={kpiStyle.card}>
-          <h4>Órdenes realizadas</h4>
-          <p>{kpis.pedidos}</p>
+          <h4>Ventas realizadas</h4>
+          <p>{kpis.ventas}</p>
         </div>
       </div>
 
