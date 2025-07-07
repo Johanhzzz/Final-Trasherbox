@@ -12,11 +12,8 @@ app.use(bodyParser.json());
 
 // Conexión a SQLite
 const db = new sqlite3.Database("./trasherbox.db", (err) => {
-  if (err) {
-    console.error("Error conectando a SQLite:", err.message);
-  } else {
-    console.log("✅ Conectado a trasherbox.db");
-  }
+  if (err) console.error("❌ Error conectando a SQLite:", err.message);
+  else console.log("✅ Conectado a trasherbox.db");
 });
 
 // Middleware para verificar admin
@@ -34,9 +31,8 @@ function verifyAdmin(req, res, next) {
 // Registro de usuario
 app.post("/api/register", async (req, res) => {
   const { email, password, usuario, telefono } = req.body;
-  if (!email || !password || !usuario || !telefono) {
+  if (!email || !password || !usuario || !telefono)
     return res.status(400).json({ error: "Faltan campos obligatorios" });
-  }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -44,14 +40,11 @@ app.post("/api/register", async (req, res) => {
       `INSERT INTO usuario (email, password_hash, usuario, telefono) VALUES (?, ?, ?, ?)`,
       [email, hashedPassword, usuario, telefono],
       function (err) {
-        if (err) {
-          console.error("Error al registrar:", err.message);
-          return res.status(400).json({ error: "Usuario ya existe o error al registrar" });
-        }
+        if (err) return res.status(400).json({ error: "Usuario ya existe o error al registrar" });
         res.status(200).json({ success: true, userId: this.lastID });
       }
     );
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: "Error del servidor" });
   }
 });
@@ -82,7 +75,7 @@ app.post("/api/admin/secure", verifyAdmin, (req, res) => {
   res.json({ message: "Ruta protegida para administradores" });
 });
 
-// Dashboard summary
+// Dashboard resumen
 app.get("/api/admin/dashboard-summary", (req, res) => {
   const summary = {};
   db.get("SELECT COUNT(*) AS totalUsuarios FROM usuario", (err, usuariosRow) => {
@@ -91,7 +84,7 @@ app.get("/api/admin/dashboard-summary", (req, res) => {
 
     db.get("SELECT COUNT(*) AS totalPedidos FROM orden", (err, pedidosRow) => {
       if (err) return res.status(500).json({ error: "Error al contar pedidos" });
-      summary.pedidos = pedidosRow.totalPedidos;
+      summary.ordenes = pedidosRow.totalPedidos;
 
       db.get("SELECT COUNT(*) AS totalProductos FROM producto", (err, productosRow) => {
         if (err) return res.status(500).json({ error: "Error al contar productos" });
@@ -100,12 +93,25 @@ app.get("/api/admin/dashboard-summary", (req, res) => {
         db.get("SELECT SUM(total) AS totalVentas FROM orden", (err, ventasRow) => {
           if (err) return res.status(500).json({ error: "Error al calcular ventas" });
           summary.ventas = ventasRow.totalVentas || 0;
-
           res.json(summary);
         });
       });
     });
   });
+});
+
+// Productos por categoría
+app.get("/api/admin/productos-por-categoria", (req, res) => {
+  db.all(
+    `SELECT categoria, COUNT(*) as total 
+     FROM producto 
+     WHERE categoria IS NOT NULL AND categoria != '' 
+     GROUP BY categoria`,
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: "Error al contar por categoría" });
+      res.json(rows);
+    }
+  );
 });
 
 // Listar usuarios
@@ -168,85 +174,49 @@ app.get("/api/productos", (req, res) => {
   });
 });
 
-// Insertar nuevo producto
+// Crear producto
 app.post("/api/productos", (req, res) => {
   const {
-    titulo,
-    descripcion,
-    precio,
-    precio_anterior,
-    descuento,
-    imagen,
-    estado,
-    resenas,
-    calificacion
+    titulo, descripcion, precio, precio_anterior, descuento,
+    imagen, estado, resenas, calificacion, categoria
   } = req.body;
 
-  if (!titulo || !precio) {
+  if (!titulo || !precio)
     return res.status(400).json({ error: "Faltan campos obligatorios (titulo, precio)" });
-  }
 
   db.run(
-    `INSERT INTO producto (titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, resenas, calificacion)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO producto (titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, resenas, calificacion, categoria)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      titulo,
-      descripcion,
-      precio,
-      precio_anterior,
-      descuento,
-      imagen,
-      estado || "disponible",
-      resenas || 0,
-      calificacion || 5
+      titulo, descripcion, precio, precio_anterior, descuento, imagen,
+      estado || "disponible", resenas || 0, calificacion || 5, categoria || "otros"
     ],
     function (err) {
-      if (err) {
-        console.error(err.message);
-        return res.status(500).json({ error: "Error al insertar producto" });
-      }
+      if (err) return res.status(500).json({ error: "Error al insertar producto" });
       res.json({ id: this.lastID });
     }
   );
 });
 
-// Actualizar producto existente
+// Actualizar producto
 app.put("/api/productos/:id", (req, res) => {
   const { id } = req.params;
   const {
-    titulo,
-    descripcion,
-    precio,
-    precio_anterior,
-    descuento,
-    imagen,
-    estado,
-    resenas,
-    calificacion
+    titulo, descripcion, precio, precio_anterior, descuento,
+    imagen, estado, resenas, calificacion, categoria
   } = req.body;
 
   db.run(
-    `UPDATE producto SET
-      titulo = ?, descripcion = ?, precio = ?, precio_anterior = ?, descuento = ?,
-      imagen = ?, estado = ?, resenas = ?, calificacion = ?
-     WHERE id = ?`,
+    `UPDATE producto SET 
+      titulo=?, descripcion=?, precio=?, precio_anterior=?, descuento=?, 
+      imagen=?, estado=?, resenas=?, calificacion=?, categoria=?
+     WHERE id=?`,
     [
-      titulo,
-      descripcion,
-      precio,
-      precio_anterior,
-      descuento,
-      imagen,
-      estado,
-      resenas,
-      calificacion,
-      id
+      titulo, descripcion, precio, precio_anterior, descuento,
+      imagen, estado, resenas, calificacion, categoria, id
     ],
     function (err) {
-      if (err) {
-        console.error("❌ Error al actualizar producto:", err.message);
-        return res.status(500).json({ error: "Error al actualizar producto" });
-      }
+      if (err) return res.status(500).json({ error: "Error al actualizar producto" });
       res.json({ success: true, cambios: this.changes });
     }
   );
@@ -255,16 +225,13 @@ app.put("/api/productos/:id", (req, res) => {
 // Eliminar producto
 app.delete("/api/productos/:id", (req, res) => {
   const { id } = req.params;
-
   db.run("DELETE FROM producto WHERE id = ?", [id], function (err) {
-    if (err) {
-      console.error("❌ Error al eliminar producto:", err.message);
-      return res.status(500).json({ error: "Error al eliminar producto" });
-    }
+    if (err) return res.status(500).json({ error: "Error al eliminar producto" });
     res.json({ success: true, eliminados: this.changes });
   });
 });
 
+// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 API trasherbox corriendo en http://localhost:${PORT}`);
 });
