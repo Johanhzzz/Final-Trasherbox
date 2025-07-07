@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Carrito.css";
+import axios from "axios";
 
 function Carrito() {
   const [cartItems, setCartItems] = useState([]);
@@ -16,23 +17,35 @@ function Carrito() {
   };
 
   const cambiarCantidad = (id, delta) => {
-    const actualizado = cartItems
-      .map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      );
+    const actualizado = cartItems.map((item) =>
+      item.id === id
+        ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+        : item
+    );
     setCartItems(actualizado);
     localStorage.setItem("cart", JSON.stringify(actualizado));
   };
 
+  const pagar = async () => {
+    try {
+      const monto = Math.round(
+        cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      );
+
+      const response = await axios.post("http://localhost:3001/api/crear-transaccion", {
+        total: monto,
+      });
+
+      const { url } = response.data;
+      window.location.href = url;
+    } catch (error) {
+      console.error("❌ Error al iniciar el pago:", error);
+      alert("Error al iniciar el pago");
+    }
+  };
+
   const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const ENVIO_GRATIS_LIMITE = 30000;
-
-  const pagar = () => {
-    alert("Aquí pronto se conectará con Transbank 🚀");
-    // Enviar carrito al backend
-  };
 
   return (
     <div className="carrito-container">

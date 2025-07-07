@@ -1,0 +1,90 @@
+.product-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: #fff;
+  max-width: 300px;
+  position: relative;
+  text-align: center;
+  transition: box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.discount-label {
+  background-color: #b70000;
+  color: white;
+  padding: 4px 8px;
+  font-size: 12px;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  border-radius: 4px;
+}
+
+.product-image {
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+}
+
+.product-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.product-description {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.product-price {
+  margin: 8px 0;
+}
+
+.discounted-price {
+  color: #c40000;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.product-rating {
+  font-size: 0.85rem;
+  color: #f5a623;
+  margin: 6px 0;
+}
+
+.reviews {
+  color: #000;
+  margin-left: 4px;
+}
+
+.product-availability {
+  font-size: 0.9rem;
+  color: green;
+  margin-bottom: 12px;
+}
+
+.add-to-cart {
+  background-color: black;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.add-to-cart:hover {
+  background-color: #222;
+}

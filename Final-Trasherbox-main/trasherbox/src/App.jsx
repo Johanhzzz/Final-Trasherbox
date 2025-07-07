@@ -2,6 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import AdminApp from './admin/AdminApp';
 import AdminRoute from './components/AdminRoute';
+import Checkout from "./components/Checkout";
+import ConfirmarTransaccion from "./pages/ConfirmarTransaccion";
 
 import Panel from './pages/Panel';
 import Productos from './pages/Productos';
@@ -18,6 +20,8 @@ function App() {
         <Route path="productos" element={<Productos />} />
         <Route path="login" element={<Login />} />
         <Route path="carrito" element={<Carrito />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="confirmar-transaccion" element={<ConfirmarTransaccion />} />
       </Route>
 
       {/* Admin */}
