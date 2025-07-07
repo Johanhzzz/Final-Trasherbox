@@ -4,6 +4,8 @@ import axios from "axios";
 
 function Carrito() {
   const [cartItems, setCartItems] = useState([]);
+  const [email, setEmail] = useState("");
+  const [rut, setRut] = useState("");
 
   useEffect(() => {
     const carritoGuardado = JSON.parse(localStorage.getItem("cart")) || [];
@@ -32,23 +34,29 @@ function Carrito() {
   );
   const ENVIO_GRATIS_LIMITE = 30000;
 
-const pagar = async () => {
-  try {
-    const total = Math.round(
-      cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    );
+  const pagar = async () => {
+    if (!email || !rut) {
+      alert("Por favor ingresa tu correo y RUT para continuar.");
+      return;
+    }
 
-    const res = await axios.post("http://localhost:3001/api/crear-transaccion", {
-      total,
-    });
+    try {
+      const totalRedondeado = Math.round(total);
 
-    // Redirige a Transbank
-    window.location.href = res.data.url;
-  } catch (error) {
-    console.error("Error al crear transacción:", error);
-    alert("Hubo un error al procesar el pago.");
-  }
-};
+      const res = await axios.post("http://localhost:3001/api/crear-transaccion", {
+        total: totalRedondeado,
+        email,
+        rut,
+      });
+
+      // Redirige a Transbank
+      window.location.href = res.data.url;
+    } catch (error) {
+      console.error("Error al crear transacción:", error);
+      alert("Hubo un error al procesar el pago.");
+    }
+  };
+
   return (
     <div className="carrito-container">
       <h1>Mi carrito</h1>
@@ -113,6 +121,22 @@ const pagar = async () => {
 
           <div className="carrito-total">
             <h3>Total: ${total.toFixed(0)}</h3>
+
+            <div className="formulario-cliente">
+              <input
+                type="email"
+                placeholder="Tu correo"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Tu RUT (ej: 12.345.678-9)"
+                value={rut}
+                onChange={(e) => setRut(e.target.value)}
+              />
+            </div>
+
             <button className="boton-pagar" onClick={pagar}>
               Proceder al Pago
             </button>
