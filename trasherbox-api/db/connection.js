@@ -1,15 +1,15 @@
 // trasherbox-api/db/connection.js
-import sqlite3 from "sqlite3";
-import { open } from "sqlite";
-import path from "path";
-import { fileURLToPath } from "url";
+const sqlite3 = require("sqlite3").verbose();
+const path = require("path");
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dbPath = path.resolve(__dirname, "trasherbox.db");
+const dbPath = path.join(__dirname, "trasherbox.db");
 
-const dbPromise = open({
-  filename: dbPath,
-  driver: sqlite3.Database,
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error("❌ Error conectando a SQLite:", err.message);
+  } else {
+    console.log("✅ Conectado a trasherbox.db en", dbPath);
+  }
 });
 
-export default dbPromise;
+module.exports = db;

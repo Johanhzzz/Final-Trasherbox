@@ -47,5 +47,4 @@ router.post("/login", (req, res) => {
 });
 
 module.exports = router;
-// al final del archivo
-export default router;
+

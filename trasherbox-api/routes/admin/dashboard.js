@@ -1,28 +1,34 @@
 const express = require("express");
 const router = express.Router();
-const dbPromise = require("../../db/connection");
+const db = require("../../db/connection"); // ✅ conexión directa, sin await
 
 // Ruta: /dashboard-summary
-router.get("/dashboard-summary", async (req, res) => {
+router.get("/dashboard-summary", (req, res) => {
   console.log("📥 GET /api/admin/dashboard-summary");
 
   try {
-    const db = await dbPromise;
+    db.get("SELECT COUNT(*) as total FROM usuario", (err, usuarios) => {
+      if (err) return res.status(500).json({ error: "Error al contar usuarios" });
 
-    const usuarios = await db.get("SELECT COUNT(*) as total FROM usuario");
-    const productos = await db.get("SELECT COUNT(*) as total FROM producto");
-    const ventas = await db.get("SELECT COUNT(*) as total FROM venta");
+      db.get("SELECT COUNT(*) as total FROM producto", (err, productos) => {
+        if (err) return res.status(500).json({ error: "Error al contar productos" });
 
-    console.log("📊 Datos de resumen:", {
-      usuarios: usuarios?.total,
-      productos: productos?.total,
-      ventas: ventas?.total,
-    });
+        db.get("SELECT COUNT(*) as total FROM venta", (err, ventas) => {
+          if (err) return res.status(500).json({ error: "Error al contar ventas" });
 
-    res.json({
-      usuarios: usuarios?.total || 0,
-      productos: productos?.total || 0,
-      ventas: ventas?.total || 0,
+          console.log("📊 Datos de resumen:", {
+            usuarios: usuarios?.total,
+            productos: productos?.total,
+            ventas: ventas?.total,
+          });
+
+          res.json({
+            usuarios: usuarios?.total || 0,
+            productos: productos?.total || 0,
+            ventas: ventas?.total || 0,
+          });
+        });
+      });
     });
   } catch (err) {
     console.error("❌ Error en /dashboard-summary:", err.message);
@@ -31,21 +37,26 @@ router.get("/dashboard-summary", async (req, res) => {
 });
 
 // Ruta: /productos-por-categoria
-router.get("/productos-por-categoria", async (req, res) => {
+router.get("/productos-por-categoria", (req, res) => {
   console.log("📥 GET /api/admin/productos-por-categoria");
 
   try {
-    const db = await dbPromise;
+    db.all(
+      `SELECT categoria, COUNT(*) as total
+       FROM producto
+       WHERE categoria IS NOT NULL AND categoria != ''
+       GROUP BY categoria`,
+      [],
+      (err, rows) => {
+        if (err) {
+          console.error("❌ Error al obtener categorías:", err.message);
+          return res.status(500).json({ error: "Error al agrupar productos por categoría" });
+        }
 
-    const resultado = await db.all(`
-      SELECT categoria, COUNT(*) as total
-      FROM producto
-      WHERE categoria IS NOT NULL AND categoria != ''
-      GROUP BY categoria
-    `);
-
-    console.log("📦 Resultado de productos por categoría:", resultado);
-    res.json(resultado);
+        console.log("📦 Resultado de productos por categoría:", rows);
+        res.json(rows);
+      }
+    );
   } catch (err) {
     console.error("❌ Error en /productos-por-categoria:", err.message);
     res.status(500).json({ error: "Error al agrupar productos por categoría" });
