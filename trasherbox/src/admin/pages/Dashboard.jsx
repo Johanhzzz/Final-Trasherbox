@@ -21,7 +21,7 @@ function Dashboard() {
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
-    // KPIs resumen
+    // 🛠️ Ajuste de rutas: ahora tienen /api al principio
     fetch("http://localhost:3001/api/dashboard-summary")
       .then((res) => res.json())
       .then((data) => {
@@ -31,13 +31,25 @@ function Dashboard() {
           ordenes: data.pedidos || 0,
         });
       })
-      .catch((err) => console.error("❌ Error cargando KPIs:", err));
+      .catch((err) => {
+        console.error("❌ Error cargando KPIs:", err);
+        setKpis({ usuarios: 0, productos: 0, ordenes: 0 });
+      });
 
-    // Productos por categoría
     fetch("http://localhost:3001/api/productos-por-categoria")
       .then((res) => res.json())
-      .then((data) => setCategorias(data))
-      .catch((err) => console.error("❌ Error cargando categorías:", err));
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCategorias(data);
+        } else {
+          console.warn("⚠️ Categorías no es un array:", data);
+          setCategorias([]);
+        }
+      })
+      .catch((err) => {
+        console.error("❌ Error cargando categorías:", err);
+        setCategorias([]);
+      });
   }, []);
 
   const chartData = {
