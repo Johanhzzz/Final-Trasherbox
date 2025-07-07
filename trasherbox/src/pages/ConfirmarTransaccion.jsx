@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function ConfirmarTransaccion() {
@@ -21,6 +21,13 @@ function ConfirmarTransaccion() {
         });
     }
   }, [searchParams]);
+
+  // ✅ Borra el carrito si el pago fue exitoso
+  useEffect(() => {
+    if (resultado?.status === "AUTHORIZED") {
+      localStorage.removeItem("carrito");
+    }
+  }, [resultado]);
 
   if (!resultado) return <p>Confirmando transacción...</p>;
 

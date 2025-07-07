@@ -5,6 +5,10 @@ import "./Productos.css";
 
 function Productos() {
   const [productos, setProductos] = useState([]);
+  const [filtros, setFiltros] = useState({
+    disponibilidad: [],
+    precio: [],
+  });
 
   useEffect(() => {
     fetch("http://localhost:3001/api/productos")
@@ -12,6 +16,42 @@ function Productos() {
       .then((data) => setProductos(data))
       .catch((err) => console.error("Error al cargar productos:", err));
   }, []);
+
+  const manejarCambioFiltro = (categoria, valor) => {
+    setFiltros((prev) => {
+      const yaExiste = prev[categoria].includes(valor);
+      return {
+        ...prev,
+        [categoria]: yaExiste
+          ? prev[categoria].filter((v) => v !== valor)
+          : [...prev[categoria], valor],
+      };
+    });
+  };
+
+  const productosFiltrados = productos.filter((prod) => {
+    // ✅ Filtrar por disponibilidad (usa estado: "disponible", "agotado")
+    if (
+      filtros.disponibilidad.length > 0 &&
+      !filtros.disponibilidad.includes(prod.estado?.toLowerCase())
+    ) {
+      return false;
+    }
+
+    // ✅ Filtrar por precio
+    if (filtros.precio.length > 0) {
+      const cumplePrecio = filtros.precio.some((rango) => {
+        if (rango === "<5000") return prod.precio < 5000;
+        if (rango === "5000-10000")
+          return prod.precio >= 5000 && prod.precio <= 10000;
+        if (rango === ">10000") return prod.precio > 10000;
+        return false;
+      });
+      if (!cumplePrecio) return false;
+    }
+
+    return true;
+  });
 
   return (
     <div className="productos-container">
@@ -21,30 +61,58 @@ function Productos() {
         {/* Filtros laterales */}
         <aside className="productos-filtros">
           <h3>Filtros</h3>
+
           <div className="filtro-categoria">
             <strong>Disponibilidad</strong>
-            <div><input type="checkbox" /> Disponibles</div>
-            <div><input type="checkbox" /> Agotados</div>
+            <div>
+              <input
+                type="checkbox"
+                onChange={() =>
+                  manejarCambioFiltro("disponibilidad", "disponible")
+                }
+              />{" "}
+              Disponibles
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                onChange={() =>
+                  manejarCambioFiltro("disponibilidad", "agotado")
+                }
+              />{" "}
+              Agotados
+            </div>
           </div>
 
           <div className="filtro-categoria">
             <strong>Precio</strong>
-            <div><input type="checkbox" /> Menor a $5.000</div>
-            <div><input type="checkbox" /> $5.000 - $10.000</div>
-            <div><input type="checkbox" /> Mayor a $10.000</div>
-          </div>
-
-          <div className="filtro-categoria">
-            <strong>Tamaño de Caja</strong>
-            <div><input type="checkbox" /> Pequeña</div>
-            <div><input type="checkbox" /> Mediana</div>
-            <div><input type="checkbox" /> Grande</div>
+            <div>
+              <input
+                type="checkbox"
+                onChange={() => manejarCambioFiltro("precio", "<5000")}
+              />{" "}
+              Menor a $5.000
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                onChange={() => manejarCambioFiltro("precio", "5000-10000")}
+              />{" "}
+              $5.000 - $10.000
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                onChange={() => manejarCambioFiltro("precio", ">10000")}
+              />{" "}
+              Mayor a $10.000
+            </div>
           </div>
         </aside>
 
         {/* Productos */}
         <div className="productos-grid">
-          {productos.map((prod) => (
+          {productosFiltrados.map((prod) => (
             <ProductCard
               key={prod.id}
               id={prod.id}
