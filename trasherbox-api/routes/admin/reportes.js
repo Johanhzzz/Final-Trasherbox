@@ -1,8 +1,48 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../../db/connection");
-const { Parser } = require("json2csv"); // convierte JSON a CSV
+const { Parser } = require("json2csv");
 
+// Ruta 1: Obtener ventas agrupadas por fecha
+router.get("/ventas", (req, res) => {
+  const query = `
+    SELECT 
+      DATE(fecha) AS fecha,
+      COUNT(*) AS total_ventas,
+      SUM(total) AS total_recaudado
+    FROM orden
+    GROUP BY DATE(fecha)
+    ORDER BY fecha DESC
+  `;
+  db.all(query, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
+// Ruta 2: Obtener usuarios registrados
+router.get("/usuarios", (req, res) => {
+  const query = `
+    SELECT id, email, usuario, telefono FROM usuario
+  `;
+  db.all(query, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
+// Ruta 3: Obtener productos con stock bajo
+router.get("/stock-bajo", (req, res) => {
+  const query = `
+    SELECT titulo, stock FROM producto WHERE stock <= 5
+  `;
+  db.all(query, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
+// Ruta 4: Descargar reporte completo en CSV
 router.get("/descargar-todo", (req, res) => {
   const consultas = {
     ventas: `
