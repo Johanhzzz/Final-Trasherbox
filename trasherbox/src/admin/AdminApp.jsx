@@ -1,7 +1,7 @@
 // src/admin/AdminApp.jsx
 import { Routes, Route } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-
+import Reportes from "./pages/Reportes";
 import Dashboard from './pages/Dashboard';
 import DashboardGrafico from './pages/DashboardGrafico';
 import DashboardPedidos from './pages/DashboardPedidos';
@@ -27,17 +27,13 @@ const AdminApp = () => {
           <Route path="dashboard-resumen" element={<DashboardResumen />} />
           <Route path="dashboard-stock" element={<DashboardStock />} />
           <Route path="dashboard-top-productos" element={<DashboardTopProductos />} />
-
+          <Route path="reportes" element={<Reportes />} /> {/* ✅ CORREGIDO */}
           <Route path="users" element={<Users />} />
           <Route path="orders" element={<Orders />} />
-
           <Route path="products" element={<ProductListAdmin />} />
           <Route path="products/new" element={<ProductForm />} />
           <Route path="products/:id/edit" element={<ProductForm />} />
-
           <Route path="contact" element={<ContactRequests />} />
-
-          {/* Default admin route */}
           <Route index element={<Dashboard />} />
         </Routes>
       </main>

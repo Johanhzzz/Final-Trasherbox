@@ -23,6 +23,7 @@ app.use("/api", require("./routes/usuarios"));
 app.use("/api", require("./routes/carrito"));
 app.use("/api", require("./routes/transacciones"));
 app.use("/api/admin", require(path.resolve(__dirname, "./routes/admin/dashboard")));
+app.use("/api/reportes", require("./routes/admin/reportes"));
 
 // Iniciar servidor
 app.listen(PORT, () => {
