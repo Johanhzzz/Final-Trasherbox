@@ -21,7 +21,8 @@ function Dashboard() {
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/admin/dashboard-summary")
+    // KPIs resumen
+    fetch("http://localhost:3001/api/dashboard-summary")
       .then((res) => res.json())
       .then((data) => {
         setKpis({
@@ -30,12 +31,13 @@ function Dashboard() {
           ordenes: data.pedidos || 0,
         });
       })
-      .catch((err) => console.error("Error cargando KPIs:", err));
+      .catch((err) => console.error("❌ Error cargando KPIs:", err));
 
-    fetch("http://localhost:3001/api/admin/productos-por-categoria")
+    // Productos por categoría
+    fetch("http://localhost:3001/api/productos-por-categoria")
       .then((res) => res.json())
       .then((data) => setCategorias(data))
-      .catch((err) => console.error("Error cargando categorías:", err));
+      .catch((err) => console.error("❌ Error cargando categorías:", err));
   }, []);
 
   const chartData = {

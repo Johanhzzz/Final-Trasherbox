@@ -7,9 +7,9 @@ router.get("/dashboard-summary", async (req, res) => {
   try {
     const db = await dbPromise;
 
-    const usuarios = await db.get("SELECT COUNT(*) as total FROM usuarios");
-    const productos = await db.get("SELECT COUNT(*) as total FROM productos");
-    const pedidos = await db.get("SELECT COUNT(*) as total FROM pedidos");
+    const usuarios = await db.get("SELECT COUNT(*) as total FROM usuario");
+    const productos = await db.get("SELECT COUNT(*) as total FROM producto");
+    const pedidos = await db.get("SELECT COUNT(*) as total FROM orden");
 
     res.json({
       usuarios: usuarios?.total || 0,
@@ -29,7 +29,7 @@ router.get("/productos-por-categoria", async (req, res) => {
 
     const resultado = await db.all(`
       SELECT categoria, COUNT(*) as total
-      FROM productos
+      FROM producto
       GROUP BY categoria
     `);
 

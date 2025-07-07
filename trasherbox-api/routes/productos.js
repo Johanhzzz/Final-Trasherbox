@@ -4,7 +4,7 @@ const router = express.Router();
 
 // GET - Obtener todos los productos
 router.get("/productos", (req, res) => {
-  db.all("SELECT * FROM productos", [], (err, rows) => {
+  db.all("SELECT * FROM producto", [], (err, rows) => {
     if (err) return res.status(500).json({ error: "Error al obtener productos" });
     res.json(rows);
   });
@@ -25,7 +25,7 @@ router.post("/productos", (req, res) => {
   } = req.body;
 
   db.run(
-    `INSERT INTO productos (
+    `INSERT INTO producto (
       titulo, descripcion, precio, precio_anterior, descuento,
       imagen, estado, resenas, calificacion
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -53,7 +53,7 @@ router.put("/productos/:id", (req, res) => {
   } = req.body;
 
   db.run(
-    `UPDATE productos SET 
+    `UPDATE producto SET 
       titulo = ?, descripcion = ?, precio = ?, precio_anterior = ?, 
       descuento = ?, imagen = ?, estado = ?, resenas = ?, calificacion = ?
     WHERE id = ?`,
@@ -69,7 +69,7 @@ router.put("/productos/:id", (req, res) => {
 router.delete("/productos/:id", (req, res) => {
   const { id } = req.params;
 
-  db.run("DELETE FROM productos WHERE id = ?", [id], function (err) {
+  db.run("DELETE FROM producto WHERE id = ?", [id], function (err) {
     if (err) return res.status(400).json({ error: "Error al eliminar producto" });
     res.json({ eliminado: this.changes });
   });
