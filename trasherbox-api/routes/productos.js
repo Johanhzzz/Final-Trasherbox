@@ -2,68 +2,76 @@ const express = require("express");
 const db = require("../db/connection");
 const router = express.Router();
 
-// Listar productos disponibles
+// GET - Obtener todos los productos
 router.get("/productos", (req, res) => {
-  db.all("SELECT * FROM producto WHERE estado = 'disponible'", (err, rows) => {
+  db.all("SELECT * FROM productos", [], (err, rows) => {
     if (err) return res.status(500).json({ error: "Error al obtener productos" });
     res.json(rows);
   });
 });
 
-// Crear producto
+// POST - Crear nuevo producto
 router.post("/productos", (req, res) => {
   const {
-    titulo, descripcion, precio, precio_anterior, descuento,
-    imagen, estado, resenas, calificacion, categoria
+    titulo,
+    descripcion,
+    precio,
+    precio_anterior,
+    descuento,
+    imagen,
+    estado,
+    resenas,
+    calificacion,
   } = req.body;
 
-  if (!titulo || !precio)
-    return res.status(400).json({ error: "Faltan campos obligatorios (titulo, precio)" });
-
   db.run(
-    `INSERT INTO producto (titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, resenas, calificacion, categoria)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      titulo, descripcion, precio, precio_anterior, descuento, imagen,
-      estado || "disponible", resenas || 0, calificacion || 5, categoria || "otros"
-    ],
+    `INSERT INTO productos (
+      titulo, descripcion, precio, precio_anterior, descuento,
+      imagen, estado, resenas, calificacion
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, resenas, calificacion],
     function (err) {
-      if (err) return res.status(500).json({ error: "Error al insertar producto" });
+      if (err) return res.status(400).json({ error: "Error al agregar producto" });
       res.json({ id: this.lastID });
     }
   );
 });
 
-// Actualizar producto
+// PUT - Actualizar producto
 router.put("/productos/:id", (req, res) => {
   const { id } = req.params;
   const {
-    titulo, descripcion, precio, precio_anterior, descuento,
-    imagen, estado, resenas, calificacion, categoria
+    titulo,
+    descripcion,
+    precio,
+    precio_anterior,
+    descuento,
+    imagen,
+    estado,
+    resenas,
+    calificacion,
   } = req.body;
 
   db.run(
-    `UPDATE producto SET 
-      titulo=?, descripcion=?, precio=?, precio_anterior=?, descuento=?, 
-      imagen=?, estado=?, resenas=?, calificacion=?, categoria=?
-     WHERE id=?`,
-    [
-      titulo, descripcion, precio, precio_anterior, descuento,
-      imagen, estado, resenas, calificacion, categoria, id
-    ],
+    `UPDATE productos SET 
+      titulo = ?, descripcion = ?, precio = ?, precio_anterior = ?, 
+      descuento = ?, imagen = ?, estado = ?, resenas = ?, calificacion = ?
+    WHERE id = ?`,
+    [titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, resenas, calificacion, id],
     function (err) {
-      if (err) return res.status(500).json({ error: "Error al actualizar producto" });
-      res.json({ success: true, cambios: this.changes });
+      if (err) return res.status(400).json({ error: "Error al actualizar producto" });
+      res.json({ actualizado: this.changes });
     }
   );
 });
 
-// Eliminar producto
+// DELETE - Eliminar producto
 router.delete("/productos/:id", (req, res) => {
   const { id } = req.params;
-  db.run("DELETE FROM producto WHERE id = ?", [id], function (err) {
-    if (err) return res.status(500).json({ error: "Error al eliminar producto" });
-    res.json({ success: true, eliminados: this.changes });
+
+  db.run("DELETE FROM productos WHERE id = ?", [id], function (err) {
+    if (err) return res.status(400).json({ error: "Error al eliminar producto" });
+    res.json({ eliminado: this.changes });
   });
 });
 
