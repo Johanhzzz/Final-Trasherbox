@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3").verbose();
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
+const fetch = require("node-fetch");
 
 const app = express();
 const PORT = 3001;
@@ -15,6 +16,17 @@ const db = new sqlite3.Database("./trasherbox.db", (err) => {
   if (err) console.error("❌ Error conectando a SQLite:", err.message);
   else console.log("✅ Conectado a trasherbox.db");
 });
+
+// Crear tabla orden si no existe
+db.run(`
+  CREATE TABLE IF NOT EXISTS orden (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token TEXT,
+    estado TEXT,
+    monto INTEGER,
+    fecha TEXT
+  )
+`);
 
 // Middleware para verificar admin
 function verifyAdmin(req, res, next) {
@@ -90,7 +102,7 @@ app.get("/api/admin/dashboard-summary", (req, res) => {
         if (err) return res.status(500).json({ error: "Error al contar productos" });
         summary.productos = productosRow.totalProductos;
 
-        db.get("SELECT SUM(total) AS totalVentas FROM orden", (err, ventasRow) => {
+        db.get("SELECT SUM(monto) AS totalVentas FROM orden", (err, ventasRow) => {
           if (err) return res.status(500).json({ error: "Error al calcular ventas" });
           summary.ventas = ventasRow.totalVentas || 0;
           res.json(summary);
@@ -229,6 +241,79 @@ app.delete("/api/productos/:id", (req, res) => {
     if (err) return res.status(500).json({ error: "Error al eliminar producto" });
     res.json({ success: true, eliminados: this.changes });
   });
+});
+
+// CREAR TRANSACCIÓN
+app.post("/api/crear-transaccion", async (req, res) => {
+  const { total } = req.body;
+
+  const buyOrder = `ORDEN${Math.floor(Math.random() * 1000000)}`;
+  const sessionId = `SESION${Math.floor(Math.random() * 1000000)}`;
+  const returnUrl = "http://localhost:5173/confirmar-transaccion";
+
+  try {
+    const response = await fetch(
+      "https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions",
+      {
+        method: "POST",
+        headers: {
+          "Tbk-Api-Key-Id": "597055555532",
+          "Tbk-Api-Key-Secret": "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          buy_order: buyOrder,
+          session_id: sessionId,
+          amount: total,
+          return_url: returnUrl,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    res.json({
+      url: `${data.url}?token_ws=${data.token}`,
+      token: data.token,
+    });
+  } catch (error) {
+    console.error("Error creando transacción:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CONFIRMAR TRANSACCIÓN
+app.post("/api/confirmar-transaccion", async (req, res) => {
+  const { token_ws } = req.body;
+
+  try {
+    const response = await fetch(
+      `https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions/${token_ws}`,
+      {
+        method: "PUT",
+        headers: {
+          "Tbk-Api-Key-Id": "597055555532",
+          "Tbk-Api-Key-Secret": "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    db.run(
+      `INSERT INTO orden (token, estado, monto, fecha) VALUES (?, ?, ?, datetime('now'))`,
+      [token_ws, data.status, data.amount],
+      function (err) {
+        if (err) console.error("❌ Error guardando orden:", err.message);
+        else console.log("✅ Orden guardada, ID:", this.lastID);
+      }
+    );
+
+    res.json(data);
+  } catch (error) {
+    console.error("Error confirmando transacción:", error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Iniciar servidor
