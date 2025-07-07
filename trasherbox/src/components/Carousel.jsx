@@ -13,7 +13,7 @@ function Carrusel() {
         <p className="legend">Nuevos productos</p>
       </div>
       <div>
-        <img src="/images/carrusel3.jpg" alt="Promo 3" />
+        <img src="/assets/carrusel3.jpg" alt="Promo 3" />
         <p className="legend">Los más vendidos</p>
       </div>
     </Carousel>
