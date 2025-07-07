@@ -11,36 +11,47 @@ function Resetear() {
   const navigate = useNavigate();
 
   const handleReset = async (e) => {
-    e.preventDefault();
-    setMensaje("");
-    setError("");
+  e.preventDefault();
+  setMensaje("");
+  setError("");
+
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=])[A-Za-z\d!@#$%^&*()_\-+=]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+        setError(
+        "La nueva contraseña debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula, un número y un símbolo."
+        );
+        return;
+    }
 
     if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
-      return;
+        setError("Las contraseñas no coinciden.");
+        return;
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/resetear", {
+        const response = await fetch("http://localhost:3001/api/resetear", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, nuevaPassword: password }),
-      });
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (response.ok) {
+        if (response.ok) {
         setMensaje("✅ Tu contraseña fue restablecida correctamente.");
         setPassword("");
         setConfirmPassword("");
         setTimeout(() => navigate("/"), 3000);
-      } else {
+        } else {
         setError(data.error || "Error al restablecer la contraseña.");
-      }
+        }
     } catch (err) {
-      setError("Error de conexión con el servidor.");
+        setError("Error de conexión con el servidor.");
     }
-  };
+    };
+
 
   return (
     <div className="login-container">
