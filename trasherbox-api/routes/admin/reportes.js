@@ -10,7 +10,7 @@ router.get("/ventas", (req, res) => {
       DATE(fecha) AS fecha,
       COUNT(*) AS total_ventas,
       SUM(total) AS total_recaudado
-    FROM orden
+    FROM venta
     GROUP BY DATE(fecha)
     ORDER BY fecha DESC
   `;
@@ -50,7 +50,7 @@ router.get("/descargar-todo", (req, res) => {
         DATE(fecha) AS fecha,
         COUNT(*) AS total_ventas,
         SUM(total) AS total_recaudado
-      FROM orden
+      FROM venta
       GROUP BY DATE(fecha)
       ORDER BY fecha DESC
     `,
