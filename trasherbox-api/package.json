@@ -4,8 +4,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
     "postinstall": "npm rebuild sqlite3"
-  },
+  }
+  ,
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -18,6 +20,8 @@
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "fast-csv": "^5.0.2",
+    "json2csv": "^6.0.0-alpha.2",
     "node-fetch": "^2.7.0",
     "pdfkit": "^0.17.1",
     "sqlite": "^5.1.1",
