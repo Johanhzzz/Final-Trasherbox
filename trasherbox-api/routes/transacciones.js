@@ -18,8 +18,8 @@ router.post("/crear-transaccion", async (req, res) => {
       {
         method: "POST",
         headers: {
-          "Tbk-Api-Key-Id": "597055555532", // ID de integración (no cambiar en pruebas)
-          "Tbk-Api-Key-Secret": "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C", // Clave secreta de integración
+          "Tbk-Api-Key-Id": "597055555532",
+          "Tbk-Api-Key-Secret": "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -62,13 +62,23 @@ router.post("/confirmar-transaccion", async (req, res) => {
 
     const data = await response.json();
 
-    // Guardar orden en la base de datos
+    // 🧾 Guardar orden
     db.run(
       `INSERT INTO orden (token, estado, monto, fecha) VALUES (?, ?, ?, datetime('now'))`,
       [token_ws, data.status, data.amount],
       function (err) {
         if (err) console.error("❌ Error guardando orden:", err.message);
         else console.log("✅ Orden guardada, ID:", this.lastID);
+      }
+    );
+
+    // 🧾 Guardar venta (mock con usuario_id = 1)
+    db.run(
+      `INSERT INTO venta (usuario_id, fecha, total, estado) VALUES (?, datetime('now'), ?, ?)`,
+      [1, data.amount, "completada"],
+      function (err) {
+        if (err) console.error("❌ Error guardando venta:", err.message);
+        else console.log("✅ Venta guardada, ID:", this.lastID);
       }
     );
 
