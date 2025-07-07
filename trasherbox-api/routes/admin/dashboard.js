@@ -1,6 +1,8 @@
+// trasherbox-api/routes/admin/dashboard.js
+
 const express = require("express");
 const router = express.Router();
-const db = require("../../db/connection"); // ✅ conexión directa, sin await
+const db = require("../../db/connection");
 
 // Ruta: /dashboard-summary
 router.get("/dashboard-summary", (req, res) => {
@@ -13,21 +15,21 @@ router.get("/dashboard-summary", (req, res) => {
       db.get("SELECT COUNT(*) as total FROM producto", (err, productos) => {
         if (err) return res.status(500).json({ error: "Error al contar productos" });
 
-        db.get("SELECT COUNT(*) as total FROM venta", (err, ventas) => {
-          if (err) return res.status(500).json({ error: "Error al contar ventas" });
+          db.get("SELECT COUNT(*) as total FROM venta", (err, ventas) => {
+            if (err) return res.status(500).json({ error: "Error al contar ventas" });
 
-          console.log("📊 Datos de resumen:", {
-            usuarios: usuarios?.total,
-            productos: productos?.total,
-            ventas: ventas?.total,
-          });
+            console.log("📊 Datos de resumen:", {
+              usuarios: usuarios?.total,
+              productos: productos?.total,
+              ventas: ventas?.total,
+            });
 
-          res.json({
-            usuarios: usuarios?.total || 0,
-            productos: productos?.total || 0,
-            ventas: ventas?.total || 0,
+            res.json({
+              usuarios: usuarios?.total || 0,
+              productos: productos?.total || 0,
+              ventas: ventas?.total || 0,
+            });
           });
-        });
       });
     });
   } catch (err) {
@@ -42,7 +44,7 @@ router.get("/productos-por-categoria", (req, res) => {
 
   try {
     db.all(
-      `SELECT categoria, COUNT(*) as total
+      `SELECT categoria, SUM(stock) as total
        FROM producto
        WHERE categoria IS NOT NULL AND categoria != ''
        GROUP BY categoria`,
@@ -53,13 +55,43 @@ router.get("/productos-por-categoria", (req, res) => {
           return res.status(500).json({ error: "Error al agrupar productos por categoría" });
         }
 
-        console.log("📦 Resultado de productos por categoría:", rows);
+        console.log("📦 Productos por categoría (stock):", rows);
         res.json(rows);
       }
     );
   } catch (err) {
     console.error("❌ Error en /productos-por-categoria:", err.message);
     res.status(500).json({ error: "Error al agrupar productos por categoría" });
+  }
+});
+
+// Ruta: /ventas-por-mes
+router.get("/ventas-por-mes", (req, res) => {
+  console.log("📥 GET /api/admin/ventas-por-mes");
+
+  try {
+    db.all(
+      `SELECT 
+         strftime('%Y-%m', fecha) AS mes,
+         COUNT(*) AS total_ventas,
+         SUM(total) AS total_ingresos
+       FROM venta
+       GROUP BY mes
+       ORDER BY mes ASC`,
+      [],
+      (err, rows) => {
+        if (err) {
+          console.error("❌ Error al obtener ventas por mes:", err.message);
+          return res.status(500).json({ error: "Error al agrupar ventas por mes" });
+        }
+
+        console.log("📈 Ventas por mes:", rows);
+        res.json(rows);
+      }
+    );
+  } catch (err) {
+    console.error("❌ Error en /ventas-por-mes:", err.message);
+    res.status(500).json({ error: "Error al agrupar ventas por mes" });
   }
 });
 
