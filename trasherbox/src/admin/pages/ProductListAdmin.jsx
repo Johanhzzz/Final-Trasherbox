@@ -13,6 +13,7 @@ const ProductListAdmin = () => {
     estado: "disponible",
     resenas: 0,
     calificacion: 5,
+    categoria: "", // nuevo campo
   });
   const [editandoId, setEditandoId] = useState(null);
 
@@ -63,6 +64,7 @@ const ProductListAdmin = () => {
       estado: "disponible",
       resenas: 0,
       calificacion: 5,
+      categoria: "", // reset
     });
     setEditandoId(null);
   };
@@ -94,27 +96,68 @@ const ProductListAdmin = () => {
       <form className="producto-form" onSubmit={handleSubmit}>
         <label>
           Título del producto
-          <input name="titulo" placeholder="Ej: Caja Cartón Mediana" value={form.titulo} onChange={handleChange} required />
+          <input
+            name="titulo"
+            placeholder="Ej: Caja Cartón Mediana"
+            value={form.titulo}
+            onChange={handleChange}
+            required
+          />
         </label>
 
         <label>
           Descripción (ej: medidas de la caja)
-          <input name="descripcion" placeholder="Ej: 40x30x30 cm" value={form.descripcion} onChange={handleChange} />
+          <input
+            name="descripcion"
+            placeholder="Ej: 40x30x30 cm"
+            value={form.descripcion}
+            onChange={handleChange}
+          />
         </label>
 
         <label>
           Precio actual
-          <input name="precio" type="number" placeholder="Ej: 1890" value={form.precio} onChange={handleChange} required />
+          <input
+            name="precio"
+            type="number"
+            placeholder="Ej: 1890"
+            value={form.precio}
+            onChange={handleChange}
+            required
+          />
         </label>
 
         <label>
           Precio anterior (opcional)
-          <input name="precio_anterior" type="number" placeholder="Ej: 2490" value={form.precio_anterior} onChange={handleChange} />
+          <input
+            name="precio_anterior"
+            type="number"
+            placeholder="Ej: 2490"
+            value={form.precio_anterior}
+            onChange={handleChange}
+          />
         </label>
 
         <label>
           Descuento en %
-          <input name="descuento" type="number" placeholder="Ej: 24" value={form.descuento} onChange={handleChange} />
+          <input
+            name="descuento"
+            type="number"
+            placeholder="Ej: 24"
+            value={form.descuento}
+            onChange={handleChange}
+          />
+        </label>
+
+        <label>
+          Categoría
+          <input
+            name="categoria"
+            placeholder="Ej: Cartón, Mudanza, Decoración"
+            value={form.categoria}
+            onChange={handleChange}
+            required
+          />
         </label>
 
         <label>
@@ -127,20 +170,40 @@ const ProductListAdmin = () => {
 
         <label>
           URL de imagen del producto
-          <input name="imagen" placeholder="https://via.placeholder.com/300x200" value={form.imagen} onChange={handleChange} />
+          <input
+            name="imagen"
+            placeholder="https://via.placeholder.com/300x200"
+            value={form.imagen}
+            onChange={handleChange}
+          />
         </label>
 
         <label>
           Reseñas (cantidad)
-          <input name="resenas" type="number" placeholder="Ej: 3" value={form.resenas} onChange={handleChange} />
+          <input
+            name="resenas"
+            type="number"
+            placeholder="Ej: 3"
+            value={form.resenas}
+            onChange={handleChange}
+          />
         </label>
 
         <label>
           Calificación (de 1 a 5)
-          <input name="calificacion" type="number" step="0.1" placeholder="Ej: 4.5" value={form.calificacion} onChange={handleChange} />
+          <input
+            name="calificacion"
+            type="number"
+            step="0.1"
+            placeholder="Ej: 4.5"
+            value={form.calificacion}
+            onChange={handleChange}
+          />
         </label>
 
-        <button type="submit">{editandoId ? "Actualizar producto" : "Agregar producto"}</button>
+        <button type="submit">
+          {editandoId ? "Actualizar producto" : "Agregar producto"}
+        </button>
       </form>
 
       <hr />
@@ -160,11 +223,22 @@ const ProductListAdmin = () => {
             <p>{p.descripcion}</p>
             <p>
               <b>${p.precio}</b>{" "}
-              {p.precio_anterior && <span className="tachado">${p.precio_anterior}</span>}
+              {p.precio_anterior && (
+                <span className="tachado">${p.precio_anterior}</span>
+              )}
             </p>
             <p>{p.descuento}% OFF</p>
-            <p>{p.resenas} reseñas - {p.calificacion} ★</p>
-            <p>{p.estado === "disponible" ? "🟢 Disponible" : "🔴 Agotado"}</p>
+            <p>
+              {p.resenas} reseñas - {p.calificacion} ★
+            </p>
+            <p>
+              Categoría: <strong>{p.categoria || "Sin categoría"}</strong>
+            </p>
+            <p>
+              {p.estado === "disponible"
+                ? "🟢 Disponible"
+                : "🔴 Agotado"}
+            </p>
             <button onClick={() => handleEditar(p)}>✏️ Editar</button>
             <button onClick={() => handleEliminar(p.id)}>🗑️ Eliminar</button>
           </div>

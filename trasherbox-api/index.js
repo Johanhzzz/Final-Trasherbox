@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const path = require("path");
+
 
 const app = express();
 const PORT = 3001;
@@ -17,7 +19,7 @@ app.use("/api", require("./routes/productos"));
 app.use("/api", require("./routes/usuarios"));
 app.use("/api", require("./routes/carrito"));
 app.use("/api", require("./routes/transacciones"));
-app.use("/api", require("./routes/admin/dashboard")); // <- nueva ruta admin
+app.use("/api/admin", require(path.resolve(__dirname, "./routes/admin/dashboard"))); // <- nueva ruta admin
 
 // Levantar servidor
 app.listen(PORT, () => {

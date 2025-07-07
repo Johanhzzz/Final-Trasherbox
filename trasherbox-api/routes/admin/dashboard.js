@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const dbPromise = require("../../db/connection");
 
-// Ruta: /admin/dashboard-summary
+// Ruta: /dashboard-summary
 router.get("/dashboard-summary", async (req, res) => {
+  console.log("📥 GET /api/admin/dashboard-summary");
   try {
     const db = await dbPromise;
 
@@ -22,8 +23,9 @@ router.get("/dashboard-summary", async (req, res) => {
   }
 });
 
-// Ruta: /admin/productos-por-categoria
+// Ruta: /productos-por-categoria
 router.get("/productos-por-categoria", async (req, res) => {
+  console.log("📥 GET /api/admin/productos-por-categoria");
   try {
     const db = await dbPromise;
 
