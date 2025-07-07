@@ -1,13 +1,57 @@
-.section-title {
-  margin-top: 2rem;
-  font-size: 1.5rem;
+.panel-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: 'Arial', sans-serif;
+  min-height: 100vh;
+}
+
+.panel-main {
+  width: 100%;
+}
+
+.panel-title {
+  font-size: 2rem;
   font-weight: bold;
-  color: #2c3e50;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.panel-username {
+  color: #f39c12;
+}
+
+.panel-subtitle {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #f1c40f;
+  display: inline-block;
+  padding-bottom: 5px;
 }
 
 .productos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+  padding-bottom: 3rem;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .panel-title {
+    font-size: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
 }

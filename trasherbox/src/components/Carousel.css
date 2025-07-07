@@ -1,0 +1,23 @@
+.carousel .slide img {
+  height: 400px; /* ajusta a tu gusto */
+  width: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.carousel .legend {
+  background: rgba(0, 0, 0, 0.6);
+  font-size: 1rem;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+  .carousel .slide img {
+    height: 250px;
+  }
+
+  .carousel .legend {
+    font-size: 0.9rem;
+  }
+}

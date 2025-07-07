@@ -3,7 +3,7 @@ import "./Panel.css";
 import Carrusel from "../components/Carousel";
 import ProductCard from "../components/ProductCard";
 
-// ⚠️ Simulación de productos, reemplaza por fetch desde backend si ya tienes Express conectado
+// ⚠️ Simulación de productos, reemplaza con fetch si ya tienes backend
 const productos = [
   {
     id: 1,
@@ -40,12 +40,14 @@ function Panel() {
   const topProductos = productos.slice(0, 4); // Simula "más vendidos"
 
   return (
-    <div className="container">
-      <main className="main">
-        <h2>
-          Bienvenido, <span className="username">{user?.email}</span> 👋
+    <div className="panel-container">
+      <main className="panel-main">
+        <h2 className="panel-title">
+          Bienvenido, <span className="panel-username">{user?.email}</span> 👋
         </h2>
-        <p>Aquí puedes revisar productos, cotizar y comprar.</p>
+        <p className="panel-subtitle">
+          Aquí puedes revisar productos, cotizar y comprar.
+        </p>
 
         <Carrusel />
 
@@ -68,4 +70,3 @@ function Panel() {
 }
 
 export default Panel;
-
