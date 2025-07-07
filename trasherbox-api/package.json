@@ -6,8 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "postinstall": "npm rebuild sqlite3"
-  }
-  ,
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -24,6 +23,7 @@
     "json2csv": "^6.0.0-alpha.2",
     "node-fetch": "^2.7.0",
     "pdfkit": "^0.17.1",
+    "react-csv": "^2.2.2",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.6"
   }
