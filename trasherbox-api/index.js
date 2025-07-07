@@ -13,7 +13,8 @@ app.use(bodyParser.json());
 app.use("/api", require("./routes/auth"));
 app.use("/api", require("./routes/productos"));
 app.use("/api", require("./routes/usuarios"));
-app.use("/api", require("./routes/carrito")); // si tienes carrito
+app.use("/api", require("./routes/carrito"));
+app.use("/api", require("./routes/transacciones"));
 
 // Iniciar servidor
 app.listen(PORT, () => {
