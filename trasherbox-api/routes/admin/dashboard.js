@@ -1,37 +1,42 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../../db/connection");
+const dbPromise = require("../../db/connection");
 
-// KPIs resumen
-router.get("/admin/dashboard-summary", async (req, res) => {
+// Ruta: /admin/dashboard-summary
+router.get("/dashboard-summary", async (req, res) => {
   try {
+    const db = await dbPromise;
+
     const usuarios = await db.get("SELECT COUNT(*) as total FROM usuarios");
     const productos = await db.get("SELECT COUNT(*) as total FROM productos");
     const pedidos = await db.get("SELECT COUNT(*) as total FROM pedidos");
 
     res.json({
-      usuarios: usuarios.total,
-      productos: productos.total,
-      pedidos: pedidos.total,
+      usuarios: usuarios?.total || 0,
+      productos: productos?.total || 0,
+      pedidos: pedidos?.total || 0,
     });
   } catch (err) {
-    console.error("❌ Error dashboard-summary:", err.message);
-    res.status(500).json({ error: "Error usuarios" });
+    console.error("❌ Error en /dashboard-summary:", err.message);
+    res.status(500).json({ error: "Error al obtener resumen del dashboard" });
   }
 });
 
-// Productos agrupados por categoría
-router.get("/admin/productos-por-categoria", async (req, res) => {
+// Ruta: /admin/productos-por-categoria
+router.get("/productos-por-categoria", async (req, res) => {
   try {
+    const db = await dbPromise;
+
     const resultado = await db.all(`
       SELECT categoria, COUNT(*) as total
       FROM productos
       GROUP BY categoria
     `);
+
     res.json(resultado);
   } catch (err) {
-    console.error("❌ Error agrupando productos:", err.message);
-    res.status(500).json({ error: "Error al agrupar productos" });
+    console.error("❌ Error en /productos-por-categoria:", err.message);
+    res.status(500).json({ error: "Error al agrupar productos por categoría" });
   }
 });
 
