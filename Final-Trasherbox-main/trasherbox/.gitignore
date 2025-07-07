@@ -58,3 +58,4 @@ coverage/
 
 # Optional frontend static files
 public/static/
+trasherbox-api/trasherbox.db
