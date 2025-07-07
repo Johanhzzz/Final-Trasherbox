@@ -7,6 +7,9 @@ import Panel from './pages/Panel';
 import Productos from './pages/Productos';
 import Login from './pages/Login';
 import Carrito from './pages/Carrito';
+import Recuperar from "./pages/Recuperar";
+import Resetear from "./pages/Resetear";
+
 
 function App() {
   return (
@@ -19,6 +22,9 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route path="carrito" element={<Carrito />} />
         <Route path="confirmar-transaccion" element={<ConfirmarTransaccion />} />
+        <Route path="/recuperar" element={<Recuperar />} />
+        <Route path="/resetear/:token" element={<Resetear />} />
+
       </Route>
 
       {/* Admin */}

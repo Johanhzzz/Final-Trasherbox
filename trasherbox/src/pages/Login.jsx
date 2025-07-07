@@ -102,6 +102,18 @@ function Login() {
             required
           />
 
+          {!isRegister && (
+            <p className="olvide-contrasena">
+              <button
+                type="button"
+                className="link-button"
+                onClick={() => navigate("/recuperar")}
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </p>
+          )}
+
           {isRegister && (
             <>
               <label>Teléfono</label>
