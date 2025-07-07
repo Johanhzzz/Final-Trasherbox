@@ -35,11 +35,15 @@ router.get("/productos-por-categoria", async (req, res) => {
       GROUP BY categoria
     `);
 
+
+    console.log("📦 Resultado de productos-por-categoria:", resultado); // <-- AÑADE ESTO
+
     res.json(resultado);
   } catch (err) {
     console.error("❌ Error en /productos-por-categoria:", err.message);
     res.status(500).json({ error: "Error al agrupar productos por categoría" });
   }
 });
+
 
 module.exports = router;

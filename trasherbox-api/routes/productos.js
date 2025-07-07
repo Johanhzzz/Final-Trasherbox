@@ -20,16 +20,17 @@ router.post("/productos", (req, res) => {
     descuento,
     imagen,
     estado,
-    resenas,
+    stock,
     calificacion,
+    categoria,
   } = req.body;
 
   db.run(
     `INSERT INTO producto (
       titulo, descripcion, precio, precio_anterior, descuento,
-      imagen, estado, resenas, calificacion
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, resenas, calificacion],
+      imagen, estado, stock, calificacion, categoria
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, stock, calificacion, categoria],
     function (err) {
       if (err) return res.status(400).json({ error: "Error al agregar producto" });
       res.json({ id: this.lastID });
@@ -48,16 +49,17 @@ router.put("/productos/:id", (req, res) => {
     descuento,
     imagen,
     estado,
-    resenas,
+    stock,
     calificacion,
+    categoria,
   } = req.body;
 
   db.run(
     `UPDATE producto SET 
       titulo = ?, descripcion = ?, precio = ?, precio_anterior = ?, 
-      descuento = ?, imagen = ?, estado = ?, resenas = ?, calificacion = ?
+      descuento = ?, imagen = ?, estado = ?, stock = ?, calificacion = ?, categoria = ?
     WHERE id = ?`,
-    [titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, resenas, calificacion, id],
+    [titulo, descripcion, precio, precio_anterior, descuento, imagen, estado, stock, calificacion, categoria, id],
     function (err) {
       if (err) return res.status(400).json({ error: "Error al actualizar producto" });
       res.json({ actualizado: this.changes });

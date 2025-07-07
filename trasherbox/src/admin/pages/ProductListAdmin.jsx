@@ -11,9 +11,9 @@ const ProductListAdmin = () => {
     descuento: "",
     imagen: "",
     estado: "disponible",
-    resenas: 0,
+    stock: 0,
     calificacion: 5,
-    categoria: "", // nuevo campo
+    categoria: "",
   });
   const [editandoId, setEditandoId] = useState(null);
 
@@ -62,9 +62,9 @@ const ProductListAdmin = () => {
       descuento: "",
       imagen: "",
       estado: "disponible",
-      resenas: 0,
+      stock: 0,
       calificacion: 5,
-      categoria: "", // reset
+      categoria: "",
     });
     setEditandoId(null);
   };
@@ -179,12 +179,12 @@ const ProductListAdmin = () => {
         </label>
 
         <label>
-          Reseñas (cantidad)
+          Stock disponible
           <input
-            name="resenas"
+            name="stock"
             type="number"
-            placeholder="Ej: 3"
-            value={form.resenas}
+            placeholder="Ej: 10"
+            value={form.stock}
             onChange={handleChange}
           />
         </label>
@@ -229,15 +229,16 @@ const ProductListAdmin = () => {
             </p>
             <p>{p.descuento}% OFF</p>
             <p>
-              {p.resenas} reseñas - {p.calificacion} ★
+              Stock: <b>{p.stock}</b> unidades
+            </p>
+            <p>
+              Calificación: {p.calificacion} ★
             </p>
             <p>
               Categoría: <strong>{p.categoria || "Sin categoría"}</strong>
             </p>
             <p>
-              {p.estado === "disponible"
-                ? "🟢 Disponible"
-                : "🔴 Agotado"}
+              {p.estado === "disponible" ? "🟢 Disponible" : "🔴 Agotado"}
             </p>
             <button onClick={() => handleEditar(p)}>✏️ Editar</button>
             <button onClick={() => handleEliminar(p.id)}>🗑️ Eliminar</button>
